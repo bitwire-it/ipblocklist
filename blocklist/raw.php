@@ -1,5 +1,5 @@
 # darklist.de - blacklisted raw IPs
-# generated on 24.10.2023 11:06
+# generated on 24.10.2023 11:17
 
 103.136.40.0/24
 103.136.42.0/24
