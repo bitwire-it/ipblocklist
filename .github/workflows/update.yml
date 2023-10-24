@@ -1,28 +1,34 @@
-name: Download IP List
+name: update-list
 
 on:
+  pull_request:
   push:
-    branches: ["main"]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  build:
+  update-list:
     runs-on: ubuntu-latest
-    steps:
-      - name: Check Out
-        uses: actions/checkout@v3
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-        commit_message: Changed files
-          
-      - name: Setup wget
-        run: |
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+
+    - uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: Apply update-list changes
+
+    - name: Setup wget
+      run: |
           mkdir blocklist
           wget -i urltable -P blocklist/
 
-      - name: Merge
-        run: |
+    - name: Merge
+      run: |
           cd blocklist
           cat * >> output
-
