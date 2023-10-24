@@ -16,8 +16,8 @@ jobs:
       - name: Setup Enviroment
         run: |
           sudo apt update -y
-          sudo apt install wget cat sort
-
+          sudo apt install wget cat
+          
       - name: Setup wget
         run: |
           wget -i urltable -P blocklist/
