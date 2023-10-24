@@ -1,0 +1,28 @@
+name: Download IP List
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: buildjet-32vcpu-ubuntu-2204
+    steps:
+      - name: Check Out
+        uses: actions/checkout@v3
+
+
+      - name: Setup Enviroment
+        run: |
+          sudo apt update -y
+          sudo apt install wget cat sort
+
+      - name: Setup wget
+        run: |
+          wget -i urltable -P blocklist/
+
+      - name: Merge
+        run: |
+          cd blocklist
+          cat * >> output
