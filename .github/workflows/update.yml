@@ -30,7 +30,9 @@ jobs:
           cd blocklist
           cat * >> output
           sed -i '/^#/d' output
-          sort -u output > ~/ip-list.txt
+          sort -u output > ip-list-sec.txt
+          cd ..
+          cp /blocklist/ip-list-sec.txt .
           
     - uses: stefanzweifel/git-auto-commit-action@v5
       with:
