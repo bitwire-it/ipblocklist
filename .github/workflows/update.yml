@@ -21,6 +21,7 @@ jobs:
 
     - name: Setup wget
       run: |
+          rm -rf blocklist
           mkdir blocklist
           wget -i urltable -P blocklist/
 
