@@ -29,8 +29,8 @@ jobs:
       run: |
           cd blocklist
           cat * >> output
-          tr ';' '\n' < output > stage1
-          tr '#' '\n' < stage1 > stage2
+          sed -i 's/#.*//' output
+          sed -i 's/;.*//' output
           cat -n stage2 | sort -uk2 | sort -nk1 | cut -f2- > ip-list.txt
           cd ..
           cp blocklist/ip-list.txt .
