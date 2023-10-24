@@ -23,6 +23,11 @@ jobs:
       with:
         commit_message: Apply update-list changes
 
+    - uses: actions/upload-artifact@v2
+      with:
+        name: output
+        path: output
+
     - name: Setup wget
       run: |
           mkdir blocklist
@@ -32,3 +37,4 @@ jobs:
       run: |
           cd blocklist
           cat * >> output
+  
