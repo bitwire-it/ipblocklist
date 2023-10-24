@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+  schedule:
+    - cron: "0 */8 * * *" # UTC
 
 jobs:
   update-list:
