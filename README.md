@@ -1,7 +1,7 @@
 ## IP Blocklist
 
 This blocklist is updated every 8H
-Huge thanks to @borestad
+Huge thanks to [@borestad] (https://www.github.com/borestad)
 
 Used List:
 - https://github.com/borestad/blocklist-abuseipdb
