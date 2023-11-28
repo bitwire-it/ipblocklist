@@ -7,7 +7,6 @@ Used List:
 - https://github.com/borestad/blocklist-abuseipdb
 - https://github.com/borestad/firehol-mirror
 - https://danger.rulez.sk/projects/bruteforceblocker/blist.php
-- https://danger.rulez.sk/projects/bruteforceblocker/blist.php
 - https://www.darklist.de/raw.php
 - https://www.dan.me.uk/torlist/
 - http://rules.emergingthreats.net/blockrules/compromised-ips.txt
