@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 */8 * * *" # UTC
+    - cron: "0 */2 * * *" # UTC
 
 jobs:
   update-list:
