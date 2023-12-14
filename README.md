@@ -1,6 +1,6 @@
 ## IP Blocklist
 
-This blocklist is updated every 8H
+This blocklist is updated every 2H
 Huge thanks to [borestad](https://www.github.com/borestad)
 
 Used List:
