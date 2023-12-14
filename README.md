@@ -17,3 +17,7 @@ Used List:
 - https://cinsscore.com/list/ci-badguys.txt
 - https://talosintelligence.com/documents/ip-blacklist
 - https://github.com/stamparm/ipsum
+- https://github.com/SecOps-Institute/Tor-IP-Addresses
+- https://secureupdates.checkpoint.com/IP-list/TOR.txt
+- https://www.opendbl.net/lists/bruteforce.list
+
