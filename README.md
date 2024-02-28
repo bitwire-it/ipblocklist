@@ -17,3 +17,4 @@ Used List:
 - https://cinsscore.com/list/ci-badguys.txt
 - https://talosintelligence.com/documents/ip-blacklist
 - https://github.com/stamparm/ipsum
+- https://www.binarydefense.com/
