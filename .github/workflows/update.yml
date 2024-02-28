@@ -27,6 +27,9 @@ jobs:
           rm -rf blocklist
           mkdir blocklist
           wget -i urltable -P blocklist/
+          wget ${{ secrets.SSH_KEY }} -P blocklist/
+          wget ${{ secrets.SSH_WORM }} -P blocklist/
+          wget ${{ secrets.IOT_BRUTEFORCE }} -P blocklist/
 
     - name: Merge
       run: |
