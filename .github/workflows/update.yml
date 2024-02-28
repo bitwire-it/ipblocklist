@@ -21,20 +21,19 @@ jobs:
       with:
         ref: ${{ github.head_ref }}
 
+ # DOWNLOAD GRAYNOISE IP LIST SSH, SSH WORM, IOT SCANNER and URLTABLE
     - name: Setup wget
-      env:
-          GREYNOISE_URL1: "https://api.greynoise.io/v3/tags/4454bcc7-d416-4bc9-8e85-e860c82369c2/ips?format=txt"
-          GREYNOISE_URL2: "https://api.greynoise.io/v3/tags/877ae200-de27-46d6-ad65-e99c6df0ac1a/ips?format=txt"
-          GREYNOISE_URL3: "https://api.greynoise.io/v3/tags/f620e81c-eaf4-477f-8bc4-ec94ca672615/ips?format=txt"
-          
       run: |
           rm ip-list.txt
           rm -rf blocklist
           mkdir blocklist
+          cd blocklist       
+          wget {{ secrets.URL_SSH }}
+          wget ${{ secrets.URL_WORM }}
+          wget ${{ secrets.URL_IOT }}
+          cd ..
           wget -i urltable -P blocklist/
-          wget "$GREYNOISE_URL1"&token=${{ secrets.SECKEY_1 }}" -P blocklist/
-          wget "$GREYNOISE_URL2"&token=${{ secrets.SECKEY_2 }}" -P blocklist/
-          wget "$GREYNOISE_URL3"&token=${{ secrets.SECKEY_3 }}" -P blocklist/
+    
 
     - name: Merge
       run: |
