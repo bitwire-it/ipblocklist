@@ -28,10 +28,6 @@ jobs:
           rm -rf blocklist
           mkdir blocklist
           cd blocklist       
-          wget {{ secrets.URL_SSH }}
-          wget ${{ secrets.URL_WORM }}
-          wget ${{ secrets.URL_IOT }}
-          cd ..
           wget -i urltable -P blocklist/
     
 
