@@ -23,17 +23,18 @@ jobs:
 
     - name: Setup wget
       env:
-          KEY_1: ${{ secrets.SECKEY_1 }}
-          KEY_2: ${{ secrets.SECKEY_2 }}
-          KEY_3: ${{ secrets.SECKEY_3 }}
+          GREYNOISE_URL1: "https://api.greynoise.io/v3/tags/4454bcc7-d416-4bc9-8e85-e860c82369c2/ips?format=txt"
+          GREYNOISE_URL2: "https://api.greynoise.io/v3/tags/877ae200-de27-46d6-ad65-e99c6df0ac1a/ips?format=txt"
+          GREYNOISE_URL3: "https://api.greynoise.io/v3/tags/f620e81c-eaf4-477f-8bc4-ec94ca672615/ips?format=txt"
+          
       run: |
           rm ip-list.txt
           rm -rf blocklist
           mkdir blocklist
           wget -i urltable -P blocklist/
-          wget https://api.greynoise.io/v3/tags/4454bcc7-d416-4bc9-8e85-e860c82369c2/ips?format=txt&token=$KEY_1 -P blocklist/
-          wget https://api.greynoise.io/v3/tags/877ae200-de27-46d6-ad65-e99c6df0ac1a/ips?format=txt&token=$KEY_2 -P blocklist/
-          wget https://api.greynoise.io/v3/tags/f620e81c-eaf4-477f-8bc4-ec94ca672615/ips?format=txt&token=$KEY_3 -P blocklist/
+          wget "$GREYNOISE_URL1"&token=${{ secrets.SECKEY_1 }}" -P blocklist/
+          wget "$GREYNOISE_URL2"&token=${{ secrets.SECKEY_2 }}" -P blocklist/
+          wget "$GREYNOISE_URL3"&token=${{ secrets.SECKEY_3 }}" -P blocklist/
 
     - name: Merge
       run: |
