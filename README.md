@@ -21,3 +21,4 @@ Used List:
 - https://github.com/ShadowWhisperer/IPs
 - https://osint.digitalside.it/Threat-Intel/lists/latestips.txt
 - https://github.com/romainmarcoux/malicious-ip
+- https://github.com/elliotwutingfeng/ThreatFox-IOC-IPs
