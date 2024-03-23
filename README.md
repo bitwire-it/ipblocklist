@@ -18,3 +18,4 @@ Used List:
 - https://talosintelligence.com/documents/ip-blacklist
 - https://github.com/stamparm/ipsum
 - https://www.binarydefense.com/
+- https://github.com/ShadowWhisperer/IPs
