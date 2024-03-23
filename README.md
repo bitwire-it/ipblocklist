@@ -20,3 +20,4 @@ Used List:
 - https://www.binarydefense.com/
 - https://github.com/ShadowWhisperer/IPs
 - https://osint.digitalside.it/Threat-Intel/lists/latestips.txt
+- https://github.com/romainmarcoux/malicious-ip
