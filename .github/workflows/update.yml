@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 */2 * * *" # UTC
+    - cron: "0 */3 * * *" # UTC
 
 jobs:
   update-list:
@@ -27,7 +27,7 @@ jobs:
           rm ip-list.txt
           rm -rf blocklist
           mkdir blocklist     
-          wget -i urltable -P blocklist/
+          wget -i urltable -P blocklist/ --wait 7
     
 
     - name: Merge
