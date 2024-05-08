@@ -27,7 +27,7 @@ jobs:
           rm ip-list.txt
           rm -rf blocklist
           mkdir blocklist     
-          wget -i urltable -P blocklist/ --wait 7 2>&1 | grep -i "failed\|error"
+          wget -i urltable -P blocklist/ --wait 7
     
 
     - name: Merge
