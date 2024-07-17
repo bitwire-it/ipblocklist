@@ -2,6 +2,8 @@
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/bitwire-it/ipblocklist)
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/Matis7)
+
 This blocklist is updated every 2H
 Huge thanks to [borestad](https://www.github.com/borestad)
 
