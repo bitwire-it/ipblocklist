@@ -7,6 +7,8 @@
 This blocklist is updated every 2H
 Huge thanks to [borestad](https://www.github.com/borestad)
 
+Added Exclusion for public DNS IP
+
 Used List:
 - https://github.com/borestad/blocklist-abuseipdb
 - https://github.com/borestad/firehol-mirror
