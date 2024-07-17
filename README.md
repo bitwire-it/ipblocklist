@@ -1,5 +1,7 @@
 ## IP Blocklist
 
+![GitHub Repo stars](https://img.shields.io/github/stars/bitwire-it/ipblocklist)
+
 This blocklist is updated every 2H
 Huge thanks to [borestad](https://www.github.com/borestad)
 

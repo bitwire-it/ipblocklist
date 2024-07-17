@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
       contents: write
 
     steps:
@@ -21,27 +20,54 @@ jobs:
       with:
         ref: ${{ github.head_ref }}
 
- # DOWNLOAD GRAYNOISE IP LIST SSH, SSH WORM, IOT SCANNER and URLTABLE
-    - name: Setup wget
+    - name: Setup wget and download lists
       run: |
-          rm ip-list.txt
-          rm -rf blocklist
-          mkdir blocklist     
-          wget -i urltable -P blocklist/ --wait 7
-    
+        rm -f ip-list.txt
+        rm -rf blocklist
+        mkdir blocklist     
+        wget -i urltable -P blocklist/ --wait 7
 
-    - name: Merge
+    - name: Process and merge IP lists
       run: |
-          cd blocklist
-          cat * >> output
-          sed -i 's/#.*//' output
-          sed -i 's/;.*//' output
-          sed -i 's/\[//g; s/\]//g' output
-          cat -n output | sort -uk2 | sort -nk1 | cut -f2- > ip-list.txt
-          cd ..
-          cp blocklist/ip-list.txt .
-          rm -rf blocklist
-          
+        cd blocklist
+        for file in *; do
+          # Remove comments, leading/trailing whitespace, and empty lines
+          sed 's/#.*//; s/;.*//; s/^[[:space:]]*//; s/[[:space:]]*$//; /^$/d' "$file" >> temp_output
+        done
+        # Sort and remove duplicates
+        sort -u temp_output > ip-list.txt
+        cd ..
+        mv blocklist/ip-list.txt .
+        rm -rf blocklist
+
+    - name: Remove IPs from exclusion list
+      run: |
+        rm -f exclusion_list.txt
+        rm -rf exclusion
+        mkdir exclusion     
+        wget -i urlexclusion -P exclusion/ --wait 7
+        cd exclusion
+        for file in *; do
+          # Remove comments, leading/trailing whitespace, and empty lines
+          sed 's/#.*//; s/;.*//; s/^[[:space:]]*//; s/[[:space:]]*$//; /^$/d' "$file" >> temp_output
+        done
+        # Sort and remove duplicates
+        sort -u temp_output2 > exclusion_list.txt
+        cd ..
+        mv exclusion/exclusion_list.txt .
+        rm -rf exclusion
+
+        # Remove IP From Exclusion folder
+        if [ -f exclusion_list.txt ]; then
+          grep -vFf exclusion_list.txt ip-list.txt > temp_list.txt
+          mv temp_list.txt ip-list.txt
+        fi
+
+    - name: Validate IP addresses
+      run: |
+        # Validate IP address
+        sed -i '/^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$/!d' ip-list.txt
+
     - uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        commit_message: Apply update-list changes
+        commit_message: Update IP list
