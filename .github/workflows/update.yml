@@ -49,7 +49,7 @@ jobs:
         cd exclusion
         for file in *; do
           # Remove comments, leading/trailing whitespace, and empty lines
-          sed 's/#.*//; s/;.*//; s/^[[:space:]]*//; s/[[:space:]]*$//; /^$/d' "$file" >> temp_output
+          sed 's/#.*//; s/;.*//; s/^[[:space:]]*//; s/[[:space:]]*$//; /^$/d' "$file" >> temp_output2
         done
         # Sort and remove duplicates
         sort -u temp_output2 > exclusion_list.txt
