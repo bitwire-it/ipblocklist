@@ -5,7 +5,7 @@
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/Matis7)
 
 This blocklist is updated every 2H
-Huge thanks to [borestad](https://www.github.com/borestad)
+Huge thanks to [borestad](https://www.github.com/borestad) for base list and [mraxu](https://www.github.com/mraxu) for supporting!
 
 Added Exclusion for public DNS IP
 
