@@ -25,7 +25,7 @@ jobs:
         rm -f ip-list.txt
         rm -rf blocklist
         mkdir blocklist     
-        wget -i urltable -P blocklist/ --wait 7
+        wget -i urltable -P blocklist/ --wait 7 --tries=3 --no-check-certificate --continue --timeout=30 || true
 
     - name: Process and merge IP lists
       run: |
