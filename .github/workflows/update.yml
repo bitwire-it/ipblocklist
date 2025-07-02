@@ -66,7 +66,7 @@ jobs:
     - name: Validate IP addresses
       run: |
         # Validate IP address
-        sed -i '/^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$/!d' ip-list.txt
+        sed -i -E '/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/(3[0-2]|[12]?[0-9]))?$/!d' ip-list.txt
 
     - uses: stefanzweifel/git-auto-commit-action@v5
       with:
