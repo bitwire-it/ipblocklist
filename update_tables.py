@@ -254,6 +254,15 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 - `inbound.txt` - Processed inbound IP blocklist
 - `outbound.txt` - Processed outbound IP blocklist
 
+## Acknowledgements
+
+🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists*  
+🚀 **[David](https://github.com/dvdctn)** • *code contributions*  
+❤️ **Our sponsors** • *making this project possible*
+- [mraxu](https://www.github.com/mraxu)
+- Hareen
+- Alexandru Balmus
+
 ## Data Sources
 
 This blocklist is aggregated from the following reputable sources:
@@ -278,15 +287,6 @@ This blocklist is aggregated from the following reputable sources:
 - [Talos Intelligence](https://talosintelligence.com/documents/ip-blacklist)
 - [DigitalSide Threat-Intel](https://osint.digitalside.it/Threat-Intel/lists/latestips.txt)
 - [CriticalPathSecurity](https://github.com/CriticalPathSecurity/Public-Intelligence-Feeds)
-
-## Acknowledgements
-
-🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists*  
-🚀 **[David](https://github.com/dvdctn)** • *code contributions*  
-❤️ **Our sponsors** • *making this project possible*
-- [mraxu](https://www.github.com/mraxu)
-- Hareen
-- Alexandru Balmus
 
 ---
 
