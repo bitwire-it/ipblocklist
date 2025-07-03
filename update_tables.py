@@ -330,6 +330,11 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
         f.write("\n".join(output_lines) + "\n")
     logging.info(f"Wrote final formatted list to {output_file}.")
 
+    if list_type == "outbound":
+        with open(IP_LIST_FILE, "w", encoding="utf-8") as f:
+            f.write("\n".join(output_lines) + "\n")
+        logging.info(f"Wrote final formatted list to {IP_LIST_FILE}.")
+
     return len(final_list), total_ips
 
 async def main():
@@ -344,12 +349,7 @@ async def main():
         OUTBOUND_BLOCKLIST_DOWNLOAD_DIR, OUTBOUND_EXCLUSION_DOWNLOAD_DIR, OUTBOUND_IP_LIST_FILE
     )
     (in_count, in_total), (out_count, out_total) = await asyncio.gather(inbound_task, outbound_task)
-    # Copy outbound.txt to ip-list.txt
-    try:
-        shutil.copy2(INBOUND_IP_LIST_FILE, "ip-list.txt")
-        logging.info(f"Successfully copied {INBOUND_IP_LIST_FILE} to ip-list.txt")
-    except Exception as e:
-        logging.error(f"Failed to copy {INBOUND_IP_LIST_FILE} to ip-list.txt: {e}")
+    
     update_readme(in_count, out_count, in_total, out_total)
     total_time = time.monotonic() - start_time
     logging.info("=" * 20 + " SCRIPT COMPLETE " + "=" * 20)
