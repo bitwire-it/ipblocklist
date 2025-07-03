@@ -1,6 +1,6 @@
 # IP Blocklist
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/Rush-er/ipblocklist?style=social)](https://github.com/Rush-er/ipblocklist)
+![GitHub Repo stars](https://img.shields.io/github/stars/bitwire-it/ipblocklist)
 
 <a href="https://www.buymeacoffee.com/Matis7" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
@@ -12,14 +12,23 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-16.8M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-101.4K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-16.9M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--07--03-green?style=flat-square)
 
-- **Inbound Blocklist**: 1,123,470 networks/IPs covering 16,805,083 individual IP addresses
-- **Outbound Blocklist**: 101,426 networks/IPs covering 101,426 individual IP addresses
-- **Total Coverage**: 16,906,509 individual IP addresses
+- **Inbound Blocklist**: 1,125,824 networks/IPs covering 16,806,945 individual IP addresses
+- **Outbound Blocklist**: 101,444 networks/IPs covering 101,444 individual IP addresses
+- **Total Coverage**: 16,908,389 individual IP addresses
 
 ## Files
 
 - `inbound.txt` - Processed inbound IP blocklist
 - `outbound.txt` - Processed outbound IP blocklist
+
+## Acknowledgements
+
+🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists*  
+🚀 **[David](https://github.com/dvdctn)** • *code contributions*  
+❤️ **Our sponsors** • *making this project possible*
+- [mraxu](https://www.github.com/mraxu)
+- Hareen
+- Alexandru Balmus
 
 ## Data Sources
 
@@ -46,15 +55,6 @@ This blocklist is aggregated from the following reputable sources:
 - [DigitalSide Threat-Intel](https://osint.digitalside.it/Threat-Intel/lists/latestips.txt)
 - [CriticalPathSecurity](https://github.com/CriticalPathSecurity/Public-Intelligence-Feeds)
 
-## Acknowledgements
-
-🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists*  
-🚀 **[David](https://github.com/dvdctn)** • *code contributions*  
-❤️ **Our sponsors** • *making this project possible*
-- [mraxu](https://www.github.com/mraxu)
-- Hareen
-- Alexandru Balmus
-
 ---
 
-*This README is automatically updated by the update script on 2025-07-03 13:32:00 UTC.*
+*This README is automatically updated by the update script on 2025-07-03 16:15:08 UTC.*
