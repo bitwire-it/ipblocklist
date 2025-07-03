@@ -41,4 +41,4 @@ jobs:
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: "chore: Update IP blocklists"
-        file_pattern: "inbound.txt outbound.txt README.md"
+        file_pattern: "inbound.txt outbound.txt ip-list.txt README.md"
