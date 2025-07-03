@@ -1,0 +1,8 @@
+https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/tor-exit.txt
+https://raw.githubusercontent.com/SecOps-Institute/Tor-IP-Addresses/master/tor-exit-nodes.lst
+https://secureupdates.checkpoint.com/IP-list/TOR.txt
+https://raw.githubusercontent.com/borestad/firehol-mirror/main/xroxy.ipset
+https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Other/Tunnel
+https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-aa.txt
+https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-ab.txt
+https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/cps_cobaltstrike_ip.txt

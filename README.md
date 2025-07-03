@@ -1,32 +1,60 @@
-## IP Blocklist
+# IP Blocklist
 
-![GitHub Repo stars](https://img.shields.io/github/stars/bitwire-it/ipblocklist)
+[![GitHub Repo stars](https://img.shields.io/github/stars/Rush-er/ipblocklist?style=social)](https://github.com/Rush-er/ipblocklist)
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/Matis7)
+<a href="https://www.buymeacoffee.com/Matis7" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
-This blocklist is updated every 2H
-Huge thanks to [borestad](https://www.github.com/borestad) for base list and 
-[mraxu](https://www.github.com/mraxu), Hareen, Alexandru Balmus for supporting the project!
+This project provides aggregated IP blocklists for inbound and outbound traffic, updated every 2 hours. It includes exclusions for major public DNS resolvers to prevent legitimate services from being blocked.
 
-Added Exclusion for public DNS IP
+---
 
-Used List:
-- https://github.com/borestad/blocklist-abuseipdb
-- https://github.com/borestad/firehol-mirror
-- https://danger.rulez.sk/projects/bruteforceblocker/blist.php
-- https://www.darklist.de/raw.php
-- https://www.dan.me.uk/torlist/
-- http://rules.emergingthreats.net/blockrules/compromised-ips.txt
-- https://www.spamhaus.org/drop/edrop.txt
-- https://www.spamhaus.org/drop/drop.txt
-- https://sslbl.abuse.ch/blacklist/sslipblacklist.txt
-- https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.txt
-- https://cinsscore.com/list/ci-badguys.txt
-- https://talosintelligence.com/documents/ip-blacklist
-- https://github.com/stamparm/ipsum
-- https://www.binarydefense.com/
-- https://github.com/ShadowWhisperer/IPs
-- https://osint.digitalside.it/Threat-Intel/lists/latestips.txt
-- https://github.com/romainmarcoux/malicious-ip
-- https://github.com/elliotwutingfeng/ThreatFox-IOC-IPs
-- https://github.com/romainmarcoux/malicious-outgoing-ip
+## Live Statistics
+
+![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-16.8M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-101.4K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-16.9M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--07--03-green?style=flat-square)
+
+- **Inbound Blocklist**: 1,123,470 networks/IPs covering 16,805,083 individual IP addresses
+- **Outbound Blocklist**: 101,426 networks/IPs covering 101,426 individual IP addresses
+- **Total Coverage**: 16,906,509 individual IP addresses
+
+## Files
+
+- `inbound.txt` - Processed inbound IP blocklist
+- `outbound.txt` - Processed outbound IP blocklist
+
+## Data Sources
+
+This blocklist is aggregated from the following reputable sources:
+
+- [borestad/blocklist-abuseipdb](https://github.com/borestad/blocklist-abuseipdb)
+- [borestad/firehol-mirror](https://github.com/borestad/firehol-mirror)
+- [stamparm/ipsum](https://github.com/stamparm/ipsum)
+- [ShadowWhisperer/IPs](https://github.com/ShadowWhisperer/IPs)
+- [romainmarcoux/malicious-ip](https://github.com/romainmarcoux/malicious-ip)
+- [romainmarcoux/malicious-outgoing-ip](https://github.com/romainmarcoux/malicious-outgoing-ip)
+- [elliotwutingfeng/ThreatFox-IOC-IPs](https://github.com/elliotwutingfeng/ThreatFox-IOC-IPs)
+- [binarydefense.com](https://www.binarydefense.com/banlist.txt)
+- [bruteforceblocker.com](https://danger.rulez.sk/projects/bruteforceblocker/blist.php)
+- [darklist.de](https://www.darklist.de/raw.php)
+- [dan.me.uk Tor List](https://www.dan.me.uk/torlist/)
+- [Emerging Threats](http://rules.emergingthreats.net/blockrules/compromised-ips.txt)
+- [Spamhaus EDROP](https://www.spamhaus.org/drop/edrop.txt)
+- [Spamhaus DROP](https://www.spamhaus.org/drop/drop.txt)
+- [Abuse.ch SSLBL](https://sslbl.abuse.ch/blacklist/sslipblacklist.txt)
+- [Abuse.ch Feodo](https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.txt)
+- [CINSscore](https://cinsscore.com/list/ci-badguys.txt)
+- [Talos Intelligence](https://talosintelligence.com/documents/ip-blacklist)
+- [DigitalSide Threat-Intel](https://osint.digitalside.it/Threat-Intel/lists/latestips.txt)
+- [CriticalPathSecurity](https://github.com/CriticalPathSecurity/Public-Intelligence-Feeds)
+
+## Acknowledgements
+
+🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists*  
+🚀 **[David](https://github.com/dvdctn)** • *code contributions*  
+❤️ **Our sponsors** • *making this project possible*
+- [mraxu](https://www.github.com/mraxu)
+- Hareen
+- Alexandru Balmus
+
+---
+
+*This README is automatically updated by the update script on 2025-07-03 13:32:00 UTC.*
