@@ -346,10 +346,10 @@ async def main():
     (in_count, in_total), (out_count, out_total) = await asyncio.gather(inbound_task, outbound_task)
     # Copy outbound.txt to ip-list.txt
     try:
-        shutil.copy2(OUTBOUND_IP_LIST_FILE, "ip-list.txt")
-        logging.info(f"Successfully copied {OUTBOUND_IP_LIST_FILE} to ip-list.txt")
+        shutil.copy2(INBOUND_IP_LIST_FILE, "ip-list.txt")
+        logging.info(f"Successfully copied {INBOUND_IP_LIST_FILE} to ip-list.txt")
     except Exception as e:
-        logging.error(f"Failed to copy {OUTBOUND_IP_LIST_FILE} to ip-list.txt: {e}")
+        logging.error(f"Failed to copy {INBOUND_IP_LIST_FILE} to ip-list.txt: {e}")
     update_readme(in_count, out_count, in_total, out_total)
     total_time = time.monotonic() - start_time
     logging.info("=" * 20 + " SCRIPT COMPLETE " + "=" * 20)
