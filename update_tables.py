@@ -330,7 +330,7 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
         f.write("\n".join(output_lines) + "\n")
     logging.info(f"Wrote final formatted list to {output_file}.")
 
-    if list_type == "outbound":
+    if list_type == "inbound":
         with open(IP_LIST_FILE, "w", encoding="utf-8") as f:
             f.write("\n".join(output_lines) + "\n")
         logging.info(f"Wrote final formatted list to {IP_LIST_FILE}.")
