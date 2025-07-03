@@ -17,6 +17,7 @@ INBOUND_EXCLUSION_URL_FILE = "tables/inbound/urlexclusion_inbound"
 OUTBOUND_EXCLUSION_URL_FILE = "tables/outbound/urlexclusion_outbound"
 INBOUND_IP_LIST_FILE = "inbound.txt"
 OUTBOUND_IP_LIST_FILE = "outbound.txt"
+IP_LIST_FILE = "ip-list.txt"
 README_FILE = "README.md"
 INBOUND_BLOCKLIST_DOWNLOAD_DIR = pathlib.Path("inbound_blocklist_temp")
 OUTBOUND_BLOCKLIST_DOWNLOAD_DIR = pathlib.Path("outbound_blocklist_temp")
