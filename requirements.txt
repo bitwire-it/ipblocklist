@@ -1,3 +1,2 @@
-brotli
 aiohttp
 py-radix
