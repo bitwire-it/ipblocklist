@@ -229,7 +229,7 @@ def update_readme(inbound_count: int, outbound_count: int, inbound_total_ips: in
     # The entire README content is structured here
     readme_content = f"""# IP Blocklist
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/Rush-er/ipblocklist?style=social)](https://github.com/Rush-er/ipblocklist)
+![GitHub Repo stars](https://img.shields.io/github/stars/bitwire-it/ipblocklist)
 
 <a href="https://www.buymeacoffee.com/Matis7" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
@@ -344,6 +344,12 @@ async def main():
         OUTBOUND_BLOCKLIST_DOWNLOAD_DIR, OUTBOUND_EXCLUSION_DOWNLOAD_DIR, OUTBOUND_IP_LIST_FILE
     )
     (in_count, in_total), (out_count, out_total) = await asyncio.gather(inbound_task, outbound_task)
+    # Copy outbound.txt to ip-list.txt
+    try:
+        shutil.copy2(OUTBOUND_IP_LIST_FILE, "ip-list.txt")
+        logging.info(f"Successfully copied {OUTBOUND_IP_LIST_FILE} to ip-list.txt")
+    except Exception as e:
+        logging.error(f"Failed to copy {OUTBOUND_IP_LIST_FILE} to ip-list.txt: {e}")
     update_readme(in_count, out_count, in_total, out_total)
     total_time = time.monotonic() - start_time
     logging.info("=" * 20 + " SCRIPT COMPLETE " + "=" * 20)
