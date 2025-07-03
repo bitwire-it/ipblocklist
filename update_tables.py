@@ -8,7 +8,6 @@ import asyncio
 import aiohttp
 from concurrent.futures import ThreadPoolExecutor
 import radix
-import brotli
 
 # --- Configuration ---
 INBOUND_BLOCKLIST_URL_FILE = "tables/inbound/urltable_inbound"
