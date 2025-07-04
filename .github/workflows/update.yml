@@ -21,7 +21,13 @@ jobs:
       # This step is now simplified. For PRs, it correctly checks out a merge commit.
       # This avoids the confusion caused by `ref: ${{ github.head_ref }}`.
       uses: actions/checkout@v4
-
+    
+    - name: remove old files
+      run: |
+        rm -f ip-list.txt
+        rm -f inbound.txt
+        rm -f outbound.txt
+        
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
