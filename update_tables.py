@@ -8,6 +8,7 @@ import asyncio
 import aiohttp
 from concurrent.futures import ThreadPoolExecutor
 import radix
+import os
 
 # --- Configuration ---
 INBOUND_BLOCKLIST_URL_FILE = "tables/inbound/urltable_inbound"
@@ -50,6 +51,19 @@ HTTP_HEADERS = {
     "sec-fetch-dest": "empty",
     "sec-fetch-mode": "cors",
 }
+
+
+def remove_old_files():
+    files_to_remove = ["inbound.txt", "outbound.txt", "ip-list.txt"]
+    for filename in files_to_remove:
+        if os.path.exists(filename):
+            os.remove(filename)
+            print(f"Removed {filename}")
+        else:
+            print(f"{filename} does not exist, skipping.")
+
+# Call this function at the beginning of your script
+remove_old_files()
 
 async def download_file(session: aiohttp.ClientSession, url: str, destination: pathlib.Path, semaphore: asyncio.Semaphore):
     """Asynchronously downloads a single file, respecting the semaphore."""
