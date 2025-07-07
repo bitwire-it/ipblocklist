@@ -12,9 +12,9 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-16.8M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-104.1K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-16.9M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--07--07-green?style=flat-square)
 
-- **Inbound Blocklist**: 1,125,494 networks/IPs covering 16,808,307 individual IP addresses
+- **Inbound Blocklist**: 1,125,527 networks/IPs covering 16,808,340 individual IP addresses
 - **Outbound Blocklist**: 104,145 networks/IPs covering 104,145 individual IP addresses
-- **Total Coverage**: 16,912,452 individual IP addresses
+- **Total Coverage**: 16,912,485 individual IP addresses
 
 ## Files
 
@@ -54,7 +54,8 @@ This blocklist is aggregated from the following reputable sources:
 - [Talos Intelligence](https://talosintelligence.com/documents/ip-blacklist)
 - [DigitalSide Threat-Intel](https://osint.digitalside.it/Threat-Intel/lists/latestips.txt)
 - [CriticalPathSecurity](https://github.com/CriticalPathSecurity/Public-Intelligence-Feeds)
+- [C2 Tracker](https://github.com/montysecurity/C2-Tracker)
 
 ---
 
-*This README is automatically updated by the update script on 2025-07-07 16:50:59 UTC.*
+*This README is automatically updated by the update script on 2025-07-07 17:04:25 UTC.*
