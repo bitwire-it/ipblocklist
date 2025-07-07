@@ -300,6 +300,7 @@ This blocklist is aggregated from the following reputable sources:
 - [Talos Intelligence](https://talosintelligence.com/documents/ip-blacklist)
 - [DigitalSide Threat-Intel](https://osint.digitalside.it/Threat-Intel/lists/latestips.txt)
 - [CriticalPathSecurity](https://github.com/CriticalPathSecurity/Public-Intelligence-Feeds)
+- [C2 Tracker](https://github.com/montysecurity/C2-Tracker)
 
 ---
 
