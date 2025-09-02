@@ -292,13 +292,9 @@ This blocklist is aggregated from the following reputable sources:
 - [darklist.de](https://www.darklist.de/raw.php)
 - [dan.me.uk Tor List](https://www.dan.me.uk/torlist/)
 - [Emerging Threats](http://rules.emergingthreats.net/blockrules/compromised-ips.txt)
-- [Spamhaus EDROP](https://www.spamhaus.org/drop/edrop.txt)
 - [Spamhaus DROP](https://www.spamhaus.org/drop/drop.txt)
-- [Abuse.ch SSLBL](https://sslbl.abuse.ch/blacklist/sslipblacklist.txt)
-- [Abuse.ch Feodo](https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.txt)
 - [CINSscore](https://cinsscore.com/list/ci-badguys.txt)
 - [Talos Intelligence](https://talosintelligence.com/documents/ip-blacklist)
-- [DigitalSide Threat-Intel](https://osint.digitalside.it/Threat-Intel/lists/latestips.txt)
 - [CriticalPathSecurity](https://github.com/CriticalPathSecurity/Public-Intelligence-Feeds)
 - [C2 Tracker](https://github.com/montysecurity/C2-Tracker)
 
