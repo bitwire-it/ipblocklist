@@ -297,7 +297,10 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 ## Acknowledgements
 
 🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists*  
-🚀 **[David](https://github.com/dvdctn)** • *code contributions*  
+🚀 **Code contributions**
+- [David](https://github.com/dvdctn)
+- [Garrett Laman](https://github.com/garrettlaman)
+
 ❤️ **Our sponsors** • *making this project possible*
 - [mraxu](https://www.github.com/mraxu)
 - Hareen
