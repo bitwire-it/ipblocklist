@@ -207,8 +207,31 @@ def consolidate_networks_radix(ip_set: set[str]) -> list[str]:
     return [str(ip) for ip in ipv4_list] + [str(ip) for ip in ipv6_list]
 
 def calculate_total_ips(ip_list: list[str]) -> int:
-    """Calculates the total number of individual IP addresses covered by the list."""
-    return sum(ipaddress.ip_network(ip).num_addresses for ip in ip_list)
+    total_ips = 0
+    # Define minimum acceptable prefix lengths.
+    # Ranges with a smaller prefix number (e.g., /7 for IPv4) will be ignored in the count.
+    # IPv6 disable for now.
+    MIN_PREFIX_IPV4 = 8
+    MIN_PREFIX_IPV6 = 64
+
+    for cidr_string in ip_list:
+        try:
+            network = ipaddress.ip_network(cidr_string)
+            if network.version == 4:
+                if network.prefixlen < MIN_PREFIX_IPV4:
+                    logging.warning(f"Ignoring overly broad IPv4 network in stats: {cidr_string}")
+                    continue
+            elif network.version == 6:
+              #  if network.prefixlen < MIN_PREFIX_IPV6:
+                    logging.warning(f"Ignoring overly broad IPv6 network in stats: {cidr_string}")
+                    continue
+            
+            total_ips += network.num_addresses
+        except ValueError:
+            logging.warning(f"Skipping invalid network during IP count: {cidr_string}")
+            continue
+            
+    return total_ips
 
 def format_number(num: int) -> str:
     """Formats large numbers with suffixes (K, M, B, T)."""

@@ -1,2 +1,3 @@
 aiohttp
 py-radix
+brotlicffi
