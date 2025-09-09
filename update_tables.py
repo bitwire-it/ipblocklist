@@ -73,6 +73,7 @@ async def download_file(session: aiohttp.ClientSession, url: str, destination: p
             async with session.get(url, headers=HTTP_HEADERS, allow_redirects=True, ssl=False, timeout=timeout) as response:
                 response.raise_for_status()
                 with open(destination, "wb") as f_out:
+                    f_out.write(f"# Source: {url}\n".encode("utf-8"))
                     f_out.write(await response.read())
                 return url, True
         except Exception as e:
@@ -120,11 +121,14 @@ def _process_file(file_path: pathlib.Path) -> set[str]:
     entries = set()
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            first = f.readline()
+            source = first.split(":", 1)[1].strip()
             for line in f:
                 clean_line = line.split("#")[0].split(";")[0].strip()
                 if clean_line: entries.add(clean_line)
     except Exception as e:
         logging.error(f"Could not process file {file_path}: {e}")
+    logging.info(f"Total IP/CIDR entries in {source}: {len(entries)}")
     return entries
 
 def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
