@@ -305,6 +305,7 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 - [mraxu](https://www.github.com/mraxu)
 - Hareen
 - Alexandru Balmus
+- blockstreamtechnologies.llc
 
 ## Data Sources
 
