@@ -10,11 +10,11 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ## Live Statistics
 
-![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-22.2M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-142.1K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-22.3M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--11--11-green?style=flat-square)
+![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-22.2M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-150.8K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-22.3M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--11--11-green?style=flat-square)
 
-- **Inbound Blocklist**: 2,699,039 networks/IPs covering 22,187,440 individual IP addresses
-- **Outbound Blocklist**: 142,697 networks/IPs covering 142,077 individual IP addresses
-- **Total Coverage**: 22,329,517 individual IP addresses
+- **Inbound Blocklist**: 2,699,057 networks/IPs covering 22,187,458 individual IP addresses
+- **Outbound Blocklist**: 148,550 networks/IPs covering 150,827 individual IP addresses
+- **Total Coverage**: 22,338,285 individual IP addresses
 
 ## Files
 
@@ -32,6 +32,7 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 - [mraxu](https://www.github.com/mraxu)
 - Hareen
 - Alexandru Balmus
+- blockstreamtechnologies.llc
 
 ## Data Sources
 
@@ -57,4 +58,4 @@ This blocklist is aggregated from the following reputable sources:
 
 ---
 
-*This README is automatically updated by the update script on 2025-11-11 21:26:39 UTC.*
+*This README is automatically updated by the update script on 2025-11-11 21:33:50 UTC.*
