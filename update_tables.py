@@ -409,7 +409,7 @@ async def main():
     )
     outbound_task = process_list(
         "outbound", OUTBOUND_BLOCKLIST_URL_FILE, OUTBOUND_EXCLUSION_URL_FILE,
-        OUTBOUND_BLOCKLIST_DOWNLOAD_DIR, OUTBOUND_EXCLUSION_DOWNLOAD_Primary, OUTBOUND_IP_LIST_FILE
+        OUTBOUND_BLOCKLIST_DOWNLOAD_DIR, OUTBOUND_EXCLUSION_DOWNLOAD_DIR, OUTBOUND_IP_LIST_FILE
     )
     (in_count, in_total), (out_count, out_total) = await asyncio.gather(inbound_task, outbound_task)
     
