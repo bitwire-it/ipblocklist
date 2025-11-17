@@ -294,7 +294,7 @@ def format_ip_for_output(cidr_string: str) -> str:
     """
     if cidr_string.endswith('/32'):
         return cidr_string[:-3]
-    if cid_string.endswith('/128'):
+    if cidr_string.endswith('/128'):
         return cidr_string[:-4]
     return cidr_string
 
