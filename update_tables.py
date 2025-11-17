@@ -151,8 +151,7 @@ def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
 def consolidate_networks_radix(ip_set: set[str]) -> list[str]:
     """
     Consolidates networks using a Radix tree to find the minimal set of covering prefixes.
-    This version is compatible with older py-radix libraries that lack 'search_enclosing_prefixes'.
-    It works by finding all subnets and explicitly removing them.
+    This function is used when there is NO exclusion list.
     """
     if not ip_set: return []
     logging.info(f"Consolidating {len(ip_set):,} raw entries with Radix tree...")
@@ -174,13 +173,11 @@ def consolidate_networks_radix(ip_set: set[str]) -> list[str]:
         return []
         
     # Step 2: Identify all prefixes that are subnets of other prefixes in the tree.
+    # This is necessary because the input list might contain '1.0.0.0/8' AND '1.1.0.0/16'
+    # We want to keep only the '1.0.0.0/8'.
     prefixes_to_remove = set()
     for prefix_str in all_prefixes:
-        # search_covered() finds all prefixes in the tree that are subnets of the given one.
-        # This will always include the prefix itself.
         covered_nodes = rtree.search_covered(prefix_str)
-        # If more than one node is returned, it means this prefix covers other, more
-        # specific prefixes that are also in the tree. We should remove those subnets.
         if len(covered_nodes) > 1:
             for node in covered_nodes:
                 if node.prefix != prefix_str: # Don't add the parent prefix itself
@@ -211,11 +208,72 @@ def consolidate_networks_radix(ip_set: set[str]) -> list[str]:
     ipv6_list.sort()
     return [str(ip) for ip in ipv4_list] + [str(ip) for ip in ipv6_list]
 
+# --- NEW FUNCTION ---
+def process_with_radix_exclusion(blocklist_set: set[str], exclusion_set: set[str]) -> list[str]:
+    """
+    Builds a Radix tree from the blocklist and intelligently (and quickly)
+    removes networks from the exclusion list.
+    """
+    logging.info("Building Radix tree from blocklist...")
+    rtree = radix.Radix()
+    invalid_block_count = 0
+    for ip_str in blocklist_set:
+        try:
+            # Use str(ip_network) to normalize (e.g., 1.1.1.1 -> 1.1.1.1/32)
+            rtree.add(str(ipaddress.ip_network(ip_str, strict=False))) 
+        except ValueError:
+            invalid_block_count += 1
+    
+    if invalid_block_count > 0:
+        logging.warning(f"Skipped {invalid_block_count:,} invalid blocklist entries during tree population.")
+
+    logging.info(f"Removing {len(exclusion_set):,} exclusion entries from tree...")
+    invalid_excl_count = 0
+    for ip_str in exclusion_set:
+        try:
+            # Use str(ip_network) to normalize
+            excl_net = str(ipaddress.ip_network(ip_str, strict=False))
+            
+            # This is the magic. rtree.delete() is network-aware.
+            # It will "punch holes" in larger networks if necessary.
+            rtree.delete(excl_net)
+        except ValueError:
+            invalid_excl_count += 1
+        except KeyError:
+            # This is not an error. It just means the exclusion network
+            # (e.g., 8.8.8.8) was not in the blocklist tree to begin with.
+            continue
+            
+    if invalid_excl_count > 0:
+        logging.warning(f"Skipped {invalid_excl_count:,} invalid exclusion entries during removal.")
+
+    logging.info("Exclusion complete. Generating final sorted list.")
+    # rtree.prefixes() returns the *already optimized* list.
+    # If we delete 1.1.1.0/24 from 1.1.0.0/16, rtree.prefixes() will
+    # automatically return the other /24s (or /20s, etc.) that are left.
+    final_list = rtree.prefixes()
+
+    # Sort the final list for clean output.
+    ipv4_list, ipv6_list = [], []
+    for ip_str in final_list:
+        try:
+            ip = ipaddress.ip_network(ip_str, strict=False)
+            if ip.version == 4:
+                ipv4_list.append(ip)
+            else:
+                ipv6_list.append(ip)
+        except ValueError:
+            continue
+            
+    ipv4_list.sort()
+    ipv6_list.sort()
+    
+    logging.info(f"Final aggregated list contains {len(final_list):,} networks.")
+    return [str(ip) for ip in ipv4_list] + [str(ip) for ip in ipv6_list]
+# --- END NEW FUNCTION ---
+
 def calculate_total_ips(ip_list: list[str]) -> int:
     total_ips = 0
-    # Define minimum acceptable prefix lengths.
-    # Ranges with a smaller prefix number (e.g., /7 for IPv4) will be ignored in the count.
-    # IPv6 disable for now.
     MIN_PREFIX_IPV4 = 8
     MIN_PREFIX_IPV6 = 64
 
@@ -343,43 +401,6 @@ This blocklist is aggregated from the following reputable sources:
     except Exception as e:
         logging.error(f"Failed to update {README_FILE}: {e}")
 
-# This function is added to "normalize" the blocklists and exclusions
-# before they are compared.
-def expand_networks(ip_set: set[str], target_prefix_ipv4: int = 24, target_prefix_ipv6: int = 64) -> set[str]:
-    """
-    Expands all networks in a set down to a common prefix length.
-    This "normalizes" a list so that (e.g.) a /16 and a /20 can be
-    compared by breaking them both down into /24s.
-    """
-    logging.info(f"Normalizing network entries to common prefixes (IPv4: /{target_prefix_ipv4}, IPv6: /{target_prefix_ipv6})...")
-    expanded_set = set()
-    invalid_count = 0
-    
-    for ip_str in ip_set:
-        try:
-            net = ipaddress.ip_network(ip_str, strict=False)
-            target_prefix = target_prefix_ipv4 if net.version == 4 else target_prefix_ipv6
-            
-            if net.prefixlen < target_prefix:
-                # This network is broader than the target, break it down
-                for sub_net in net.subnets(new_prefix=target_prefix):
-                    expanded_set.add(str(sub_net))
-            else:
-                # This network is already specific enough (or is a single IP)
-                # We add the original string to handle /32, /128, and prefixes > target
-                expanded_set.add(ip_str)
-        except Exception as e:
-            # Catches invalid IPs or other parsing errors
-            logging.warning(f"Skipping invalid network during expansion: {ip_str} ({e})")
-            invalid_count += 1
-            
-    if invalid_count > 0:
-        logging.warning(f"Skipped {invalid_count} invalid entries during network expansion.")
-        
-    logging.info(f"Original {len(ip_set):,} entries expanded to {len(expanded_set):,} normalized entries.")
-    return expanded_set
-
-
 async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_file: str,
                        blocklist_download_dir: pathlib.Path, exclusion_download_dir: pathlib.Path,
                        output_file: str):
@@ -396,29 +417,18 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
     logging.info(f"Found {len(blocklist_entries):,} raw blocklist entries and {len(exclusion_entries):,} raw exclusion entries.")
 
     if exclusion_entries:
-        # Normalize *both* lists by expanding them.
-        # This breaks 140.82.0.0/16 (blocklist) into thousands of /24s
-        # It also breaks 140.82.112.0/20 (exclusion) into its 16 corresponding /24s
-        
-        # We use /24 for IPv4 and /64 for IPv6 as common denominators.
-        normalized_blocklist = expand_networks(blocklist_entries, target_prefix_ipv4=8, target_prefix_ipv6=128)
-        normalized_exclusions = expand_networks(exclusion_entries, target_prefix_ipv4=8, target_prefix_ipv6=128)
-        
-        initial_count = len(normalized_blocklist)
-        normalized_blocklist.difference_update(normalized_exclusions)
-        logging.info(f"Removed {initial_count - len(normalized_blocklist):,} normalized exclusion entries.")
-        
-        # Pass the "punched-hole" list to the consolidator to re-assemble
-        final_list = consolidate_networks_radix(normalized_blocklist)
+        # This function builds the Radix tree
+        final_list = process_with_radix_exclusion(blocklist_entries, exclusion_entries)
     
     else:
-        # No exclusions, process as normal
+        # No exclusions, use the original consolidation logic
         logging.info("No exclusion entries found, consolidating blocklist directly.")
         final_list = consolidate_networks_radix(blocklist_entries)
 
     total_ips = calculate_total_ips(final_list)
     logging.info(f"Final {list_type} list: {len(final_list):,} networks covering {total_ips:,} individual IPs.")
 
+    # Apply the custom formatting before writing to the file
     logging.info(f"Formatting {len(final_list):,} networks for output file...")
     output_lines = [format_ip_for_output(ip) for ip in final_list]
 
