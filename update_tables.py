@@ -55,11 +55,12 @@ HTTP_HEADERS = {
 
 # --- Regex for finding IP/CIDR ---
 # This will find IPv4 and IPv4-CIDR.
-# It's simplified to avoid matching IPv6 for now, as that's more complex.
-# This pattern looks for XXX.XXX.XXX.XXX(/YY)
 IP_CIDR_REGEX = re.compile(
     r"\b((?:[0-9]{1,3}\.){3}[0-9]{1,3}(?:/[0-9]{1,2})?)\b"
 )
+# A more complex regex that also matches IPv6 (if you need it later)
+# IP_CIDR_REGEX = re.compile(r"(\b(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}(?:/[0-9]{1,2})?)|(?:[0-9a-fA-F:]{2,}(?:/[0-9]{1,3})?)\b)")
+
 
 def remove_old_files():
     files_to_remove = ["inbound.txt", "outbound.txt", "ip-list.txt"]
@@ -70,6 +71,7 @@ def remove_old_files():
         else:
             print(f"{filename} does not exist, skipping.")
 
+# Call this function at the beginning of your script
 remove_old_files()
 
 async def download_file(session: aiohttp.ClientSession, url: str, destination: pathlib.Path, semaphore: asyncio.Semaphore):
@@ -123,6 +125,7 @@ async def download_all_files(url_file: str, download_dir: pathlib.Path):
     
     logging.info(f"Finished all downloads for {url_file}. Success: {success_count}, Failed: {fail_count}")
 
+# --- V7 BULLETPROOF PARSER ---
 def _process_file(file_path: pathlib.Path) -> set[str]:
     """
     Robust helper function to parse a single file.
@@ -154,6 +157,7 @@ def _process_file(file_path: pathlib.Path) -> set[str]:
                         ipaddress.ip_network(ip_str, strict=False)
                         entries.add(ip_str)
                     except ValueError:
+                        # Regex matched, but it's not a valid IP (e.g., 999.999.9.9)
                         logging.warning(f"Regex matched invalid IP '{ip_str}' in {source_url}")
                         
     except Exception as e:
@@ -162,6 +166,7 @@ def _process_file(file_path: pathlib.Path) -> set[str]:
     # Log the source URL if we found one, otherwise the file path
     logging.info(f"Parsed {len(entries)} entries from {source_url}")
     return entries
+# --- END V7 PARSER ---
 
 def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
     """Reads all files in a directory in parallel and returns a set of unique, clean lines."""
@@ -180,6 +185,7 @@ def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
     shutil.rmtree(download_dir)
     return all_entries
 
+# --- V9 - CORRECTED LOGIC FUNCTION ---
 def consolidate_networks_radix(ip_set: set[str], exclusion_set: set[str] = None) -> list[str]:
     """
     Consolidates networks using a Radix tree, applying exclusions and aggregating the result.
@@ -205,12 +211,32 @@ def consolidate_networks_radix(ip_set: set[str], exclusion_set: set[str] = None)
         invalid_excl_count = 0
         for ip_str in exclusion_set:
             try:
-                excl_net = str(ipaddress.ip_network(ip_str, strict=False))
-                rtree.delete(excl_net)
+                excl_net_str = str(ipaddress.ip_network(ip_str, strict=False))
+                
+                # --- THIS IS THE CORRECTED DUAL-DELETE LOGIC ---
+                # 1. Delete the exact exclusion network (if it exists)
+                try:
+                    rtree.delete(excl_net_str)
+                except KeyError:
+                    pass # Not in the tree, that's fine
+
+                # 2. Find and delete all subnets *covered by* this exclusion
+                # This removes specific IPs (like '140.82.121.3')
+                # when the exclusion is '140.82.112.0/20'.
+                nodes_to_delete = rtree.search_covered(excl_net_str)
+                if nodes_to_delete:
+                    # We must iterate over a static list, as deleting modifies the tree
+                    prefixes_to_delete = [node.prefix for node in nodes_to_delete]
+                    for prefix in prefixes_to_delete:
+                        try:
+                            rtree.delete(prefix)
+                        except KeyError:
+                            pass # Already deleted, fine
+                # --- END CORRECTED LOGIC ---
+                            
             except ValueError:
                 invalid_excl_count += 1
-            except KeyError:
-                continue
+        
         if invalid_excl_count > 0:
             logging.warning(f"Skipped {invalid_excl_count:,} invalid exclusion entries.")
 
@@ -306,6 +332,8 @@ def update_readme(inbound_count: int, outbound_count: int, inbound_total_ips: in
     inbound_fmt = format_number(inbound_total_ips)
     outbound_fmt = format_number(outbound_total_ips)
     total_fmt = format_number(inbound_total_ips + outbound_total_ips)
+    
+    # The entire README content is structured here
     readme_content = f"""# IP Blocklist
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/bitwire-it/ipblocklist)
@@ -334,10 +362,8 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ## Acknowledgements
 
-🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 
-
-🚀 **Code contributions**
-- [David](https://github.comi/dvdctn)
+🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 🚀 **Code contributions**
+- [David](https://github.com/dvdctn)
 - [Garrett Laman](https://github.com/garrettlaman)
 
 ❤️ **Our sponsors** • *making this project possible*
@@ -358,7 +384,7 @@ This blocklist is aggregated from the following reputable sources:
 - [romainmarcoux/malicious-outgoing-ip](https://github.com/romainmarcoux/malicious-outgoing-ip)
 - [elliotwutingfeng/ThreatFox-IOC-IPs](https://github.com/elliotwutingfeng/ThreatFox-IOC-IPs)
 - [binarydefense.com](https://www.binarydefense.com/banlist.txt)
-- [bruteforceblocker.com](httpss://danger.rulez.sk/projects/bruteforceblocker/blist.php)
+- [bruteforceblocker.com](https://danger.rulez.sk/projects/bruteforceblocker/blist.php)
 - [darklist.de](https://www.darklist.de/raw.php)
 - [dan.me.uk Tor List](https://www.dan.me.uk/torlist/)
 - [Emerging Threats](http://rules.emergingthreats.net/blockrules/compromised-ips.txt)
@@ -407,6 +433,18 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
             for i, entry in enumerate(excl_list_sample):
                 logging.info(f"EXCL {i+1}: {entry}")
         
+        # Specifically check for the problem range
+        if "140.82.112.0/20" in exclusion_entries:
+            logging.info(">>> DEBUG: Problem range '140.82.112.0/20' was successfully parsed from exclusion list.")
+        else:
+            logging.warning(">>> DEBUG: Problem range '140.82.112.0/20' was NOT found in the parsed exclusion set.")
+
+        logging.info("--- END S_EXCLUSION_ENTRIES (SAMPLE) ---")
+    else:
+        logging.warning("No exclusion entries were found! The exclusion list may be empty or failed to parse.")
+
+
+
     if not exclusion_entries:
         # Pass an empty set for exclusions
         final_list = consolidate_networks_radix(blocklist_entries, exclusion_set=set())
