@@ -401,8 +401,8 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
         # It also breaks 140.82.112.0/20 (exclusion) into its 16 corresponding /24s
         
         # We use /24 for IPv4 and /64 for IPv6 as common denominators.
-        normalized_blocklist = expand_networks(blocklist_entries, target_prefix_ipv4=8, target_prefix_ipv6=64)
-        normalized_exclusions = expand_networks(exclusion_entries, target_prefix_ipv4=8, target_prefix_ipv6=64)
+        normalized_blocklist = expand_networks(blocklist_entries, target_prefix_ipv4=8, target_prefix_ipv6=128)
+        normalized_exclusions = expand_networks(exclusion_entries, target_prefix_ipv4=8, target_prefix_ipv6=128)
         
         initial_count = len(normalized_blocklist)
         normalized_blocklist.difference_update(normalized_exclusions)
