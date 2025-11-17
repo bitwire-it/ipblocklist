@@ -9,6 +9,7 @@ import aiohttp
 from concurrent.futures import ThreadPoolExecutor
 import radix
 import os
+import re # Import regex
 
 # --- Configuration ---
 INBOUND_BLOCKLIST_URL_FILE = "tables/inbound/urltable_inbound"
@@ -52,6 +53,13 @@ HTTP_HEADERS = {
     "sec-fetch-mode": "cors",
 }
 
+# --- Regex for finding IP/CIDR ---
+# This will find IPv4 and IPv4-CIDR.
+# It's simplified to avoid matching IPv6 for now, as that's more complex.
+# This pattern looks for XXX.XXX.XXX.XXX(/YY)
+IP_CIDR_REGEX = re.compile(
+    r"\b((?:[0-9]{1,3}\.){3}[0-9]{1,3}(?:/[0-9]{1,2})?)\b"
+)
 
 def remove_old_files():
     files_to_remove = ["inbound.txt", "outbound.txt", "ip-list.txt"]
@@ -62,7 +70,6 @@ def remove_old_files():
         else:
             print(f"{filename} does not exist, skipping.")
 
-# Call this function at the beginning of your script
 remove_old_files()
 
 async def download_file(session: aiohttp.ClientSession, url: str, destination: pathlib.Path, semaphore: asyncio.Semaphore):
@@ -116,34 +123,45 @@ async def download_all_files(url_file: str, download_dir: pathlib.Path):
     
     logging.info(f"Finished all downloads for {url_file}. Success: {success_count}, Failed: {fail_count}")
 
-# --- NEW ROBUST PARSER ---
 def _process_file(file_path: pathlib.Path) -> set[str]:
     """
     Robust helper function to parse a single file.
-    It ignores comments and processes all other lines.
+    It uses a regular expression to find the first valid IP/CIDR on a line,
+    ignoring any other text.
     """
     entries = set()
     source_url = str(file_path) # Default source name
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
-                # First, check for our source comment
                 if line.startswith("# Source:"):
                     source_url = line.split(":", 1)[1].strip()
-                    continue # Go to next line
+                    continue
                 
-                # Now, process the line as a potential IP
+                # Clean the line of comments and whitespace
                 clean_line = line.split("#")[0].split(";")[0].strip()
-                if clean_line:
-                    entries.add(clean_line)
-                    
+                if not clean_line:
+                    continue
+
+                # Search for an IP/CIDR pattern anywhere in the line
+                match = IP_CIDR_REGEX.search(clean_line)
+                
+                if match:
+                    # Found one. Extract it.
+                    ip_str = match.group(1)
+                    try:
+                        # Final validation
+                        ipaddress.ip_network(ip_str, strict=False)
+                        entries.add(ip_str)
+                    except ValueError:
+                        logging.warning(f"Regex matched invalid IP '{ip_str}' in {source_url}")
+                        
     except Exception as e:
         logging.error(f"Could not process file {file_path}: {e}")
     
     # Log the source URL if we found one, otherwise the file path
     logging.info(f"Parsed {len(entries)} entries from {source_url}")
     return entries
-# --- END NEW PARSER ---
 
 def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
     """Reads all files in a directory in parallel and returns a set of unique, clean lines."""
@@ -162,7 +180,6 @@ def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
     shutil.rmtree(download_dir)
     return all_entries
 
-# --- UNIFIED & CORRECTED FUNCTION ---
 def consolidate_networks_radix(ip_set: set[str], exclusion_set: set[str] = None) -> list[str]:
     """
     Consolidates networks using a Radix tree, applying exclusions and aggregating the result.
@@ -182,7 +199,7 @@ def consolidate_networks_radix(ip_set: set[str], exclusion_set: set[str] = None)
     if invalid_count > 0:
         logging.warning(f"Skipped {invalid_count:,} invalid IP/CIDR entries during population.")
 
-    # Step 2: (NEW) Remove all exclusion networks.
+    # Step 2: Remove all exclusion networks.
     if exclusion_set:
         logging.info(f"Applying {len(exclusion_set):,} exclusion entries...")
         invalid_excl_count = 0
@@ -193,7 +210,6 @@ def consolidate_networks_radix(ip_set: set[str], exclusion_set: set[str] = None)
             except ValueError:
                 invalid_excl_count += 1
             except KeyError:
-                # Not an error, the exclusion wasn't in the tree to begin with.
                 continue
         if invalid_excl_count > 0:
             logging.warning(f"Skipped {invalid_excl_count:,} invalid exclusion entries.")
@@ -207,7 +223,6 @@ def consolidate_networks_radix(ip_set: set[str], exclusion_set: set[str] = None)
     # Step 4: Aggregate the list by removing subnets that are covered by larger nets.
     prefixes_to_remove = set()
     for prefix_str in all_prefixes:
-        # search_covered() finds all prefixes in the tree that are subnets of this one.
         covered_nodes = rtree.search_covered(prefix_str)
         if len(covered_nodes) > 1:
             for node in covered_nodes:
@@ -279,7 +294,7 @@ def format_ip_for_output(cidr_string: str) -> str:
     """
     if cidr_string.endswith('/32'):
         return cidr_string[:-3]
-    if cidr_string.endswith('/128'):
+    if cid_string.endswith('/128'):
         return cidr_string[:-4]
     return cidr_string
 
@@ -291,8 +306,6 @@ def update_readme(inbound_count: int, outbound_count: int, inbound_total_ips: in
     inbound_fmt = format_number(inbound_total_ips)
     outbound_fmt = format_number(outbound_total_ips)
     total_fmt = format_number(inbound_total_ips + outbound_total_ips)
-    
-    # The entire README content is structured here
     readme_content = f"""# IP Blocklist
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/bitwire-it/ipblocklist)
@@ -324,7 +337,7 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 
 
 🚀 **Code contributions**
-- [David](https://github.com/dvdctn)
+- [David](https://github.comi/dvdctn)
 - [Garrett Laman](https://github.com/garrettlaman)
 
 ❤️ **Our sponsors** • *making this project possible*
@@ -345,7 +358,7 @@ This blocklist is aggregated from the following reputable sources:
 - [romainmarcoux/malicious-outgoing-ip](https://github.com/romainmarcoux/malicious-outgoing-ip)
 - [elliotwutingfeng/ThreatFox-IOC-IPs](https://github.com/elliotwutingfeng/ThreatFox-IOC-IPs)
 - [binarydefense.com](https://www.binarydefense.com/banlist.txt)
-- [bruteforceblocker.com](https://danger.rulez.sk/projects/bruteforceblocker/blist.php)
+- [bruteforceblocker.com](httpss://danger.rulez.sk/projects/bruteforceblocker/blist.php)
 - [darklist.de](https://www.darklist.de/raw.php)
 - [dan.me.uk Tor List](https://www.dan.me.uk/torlist/)
 - [Emerging Threats](http://rules.emergingthreats.net/blockrules/compromised-ips.txt)
@@ -376,14 +389,11 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
         download_all_files(blocklist_url_file, blocklist_download_dir),
         download_all_files(exclusion_url_file, exclusion_download_dir)
     )
-
-    # --- SIMPLIFIED & CORRECTED LOGIC BLOCK ---
     
     blocklist_entries = parse_files_in_parallel(blocklist_download_dir)
     exclusion_entries = parse_files_in_parallel(exclusion_download_dir)
     logging.info(f"Found {len(blocklist_entries):,} raw blocklist entries and {len(exclusion_entries):,} raw exclusion entries.")
 
-    # --- DEBUGGING: Show a sample of exclusion entries ---
     if exclusion_entries:
         logging.info("--- START S_EXCLUSION_ENTRIES (SAMPLE) ---")
         excl_list_sample = list(exclusion_entries)
@@ -396,20 +406,13 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
             logging.info(f"Showing all {len(excl_list_sample)} exclusion entries:")
             for i, entry in enumerate(excl_list_sample):
                 logging.info(f"EXCL {i+1}: {entry}")
-        logging.info("--- END S_EXCLUSION_ENTRIES (SAMPLE) ---")
-    else:
-        logging.warning("No exclusion entries were found! The exclusion list may be empty or failed to parse.")
-    # --- END DEBUGGING ---
-
-
+        
     if not exclusion_entries:
         # Pass an empty set for exclusions
         final_list = consolidate_networks_radix(blocklist_entries, exclusion_set=set())
     else:
         # Pass both lists to the unified function
         final_list = consolidate_networks_radix(blocklist_entries, exclusion_entries)
-
-    # --- END SIMPLIFIED LOGIC BLOCK ---
 
     total_ips = calculate_total_ips(final_list)
     logging.info(f"Final {list_type} list: {len(final_list):,} networks covering {total_ips:,} individual IPs.")
