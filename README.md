@@ -12,9 +12,9 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-22.2M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-155.7K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-22.4M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--11--17-green?style=flat-square)
 
-- **Inbound Blocklist**: 2,693,093 networks/IPs covering 22,199,102 individual IP addresses
-- **Outbound Blocklist**: 152,514 networks/IPs covering 155,707 individual IP addresses
-- **Total Coverage**: 22,354,809 individual IP addresses
+- **Inbound Blocklist**: 2,693,114 networks/IPs covering 22,199,123 individual IP addresses
+- **Outbound Blocklist**: 152,510 networks/IPs covering 155,703 individual IP addresses
+- **Total Coverage**: 22,354,826 individual IP addresses
 
 ## Files
 
@@ -23,10 +23,8 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ## Acknowledgements
 
-🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 
-
-🚀 **Code contributions**
-- [David](https://github.comi/dvdctn)
+🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 🚀 **Code contributions**
+- [David](https://github.com/dvdctn)
 - [Garrett Laman](https://github.com/garrettlaman)
 
 ❤️ **Our sponsors** • *making this project possible*
@@ -47,7 +45,7 @@ This blocklist is aggregated from the following reputable sources:
 - [romainmarcoux/malicious-outgoing-ip](https://github.com/romainmarcoux/malicious-outgoing-ip)
 - [elliotwutingfeng/ThreatFox-IOC-IPs](https://github.com/elliotwutingfeng/ThreatFox-IOC-IPs)
 - [binarydefense.com](https://www.binarydefense.com/banlist.txt)
-- [bruteforceblocker.com](httpss://danger.rulez.sk/projects/bruteforceblocker/blist.php)
+- [bruteforceblocker.com](https://danger.rulez.sk/projects/bruteforceblocker/blist.php)
 - [darklist.de](https://www.darklist.de/raw.php)
 - [dan.me.uk Tor List](https://www.dan.me.uk/torlist/)
 - [Emerging Threats](http://rules.emergingthreats.net/blockrules/compromised-ips.txt)
@@ -59,4 +57,4 @@ This blocklist is aggregated from the following reputable sources:
 
 ---
 
-*This README is automatically updated by the update script on 2025-11-17 11:31:40 UTC.*
+*This README is automatically updated by the update script on 2025-11-17 11:37:02 UTC.*
