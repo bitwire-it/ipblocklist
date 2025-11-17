@@ -10,20 +10,38 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ## Live Statistics
 
-![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-22.2M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-153.9K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-22.4M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--11--17-green?style=flat-square)
+![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-22.2M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-154.0K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-22.4M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--11--17-green?style=flat-square)
 
-- **Inbound Blocklist**: 2,693,010 networks/IPs covering 22,197,153 individual IP addresses
-- **Outbound Blocklist**: 151,298 networks/IPs covering 153,872 individual IP addresses
-- **Total Coverage**: 22,351,025 individual IP addresses
+- **Inbound Blocklist**: 2,691,741 networks/IPs covering 22,197,749 individual IP addresses
+- **Outbound Blocklist**: 150,765 networks/IPs covering 153,958 individual IP addresses
+- **Total Coverage**: 22,351,707 individual IP addresses
 
-## Files
 
-- `inbound.txt` - Processed inbound IP blocklist
-- `outbound.txt` - Processed outbound IP blocklist
+---
+
+## How to Use These Lists
+
+These are standard text files (`
+` separated) and can be used with most modern firewalls, ad-blockers, and security tools.
+
+### 🛡️ `inbound.txt` (Inbound Blocklist)
+
+* **What it is:** A list of IPs/networks with a bad reputation for *initiating* malicious connections. This includes sources of spam, scanning, brute-force attacks (SSH, RDP), and web exploits.
+* **Use Case:** Protect your public-facing servers and services (web servers, mail servers, game servers, etc.).
+* **How to use:** Apply this list to your firewall's **WAN IN** or **INPUT** chain to **DROP** or **REJECT** all incoming traffic *from* these sources.
+
+### ☢️ `outbound.txt` (Outbound Blocklist)
+
+* **What it is:** A list of known malicious destination IPs. This includes C2 (Command & Control) servers, botnet controllers, malware drop sites, and phishing hosts.
+* **Use Case:** Prevent compromised devices on your *internal* network (like a laptop or IoT device) from *contacting* malicious servers.
+* **How to use:** Apply this list to your firewall's **LAN OUT** or **OUTPUT** chain to **BLOCK** or **LOG** all outgoing traffic *to* these destinations.
+
+---
 
 ## Acknowledgements
 
-🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists*  
+🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 
+
 🚀 **Code contributions**
 - [David](https://github.com/dvdctn)
 - [Garrett Laman](https://github.com/garrettlaman)
@@ -58,4 +76,4 @@ This blocklist is aggregated from the following reputable sources:
 
 ---
 
-*This README is automatically updated by the update script on 2025-11-17 08:32:36 UTC.*
+*This README is automatically updated by the update script on 2025-11-17 12:26:14 UTC.*
