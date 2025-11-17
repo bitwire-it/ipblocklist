@@ -1,4 +1,4 @@
-# update_tables.py
+#!/usr/bin/env python3
 import ipaddress
 import logging
 import pathlib
@@ -9,6 +9,7 @@ import aiohttp
 from concurrent.futures import ThreadPoolExecutor
 import radix
 import os
+import re
 
 # --- Configuration ---
 INBOUND_BLOCKLIST_URL_FILE = "tables/inbound/urltable_inbound"
@@ -52,6 +53,11 @@ HTTP_HEADERS = {
     "sec-fetch-mode": "cors",
 }
 
+# --- Regex for finding IP/CIDR ---
+# This will find IPv4 and IPv4-CIDR.
+IP_CIDR_REGEX = re.compile(
+    r"\b((?:[0-9]{1,3}\.){3}[0-9]{1,3}(?:/[0-9]{1,2})?)\b"
+)
 
 def remove_old_files():
     files_to_remove = ["inbound.txt", "outbound.txt", "ip-list.txt"]
@@ -62,7 +68,6 @@ def remove_old_files():
         else:
             print(f"{filename} does not exist, skipping.")
 
-# Call this function at the beginning of your script
 remove_old_files()
 
 async def download_file(session: aiohttp.ClientSession, url: str, destination: pathlib.Path, semaphore: asyncio.Semaphore):
@@ -109,7 +114,7 @@ async def download_all_files(url_file: str, download_dir: pathlib.Path):
                 if success: success_count += 1
                 else: fail_count += 1
                 if i % 10 == 0 or i == len(urls):
-                     logging.info(f"Downloads from {url_file}: [{i}/{len(urls)}] complete. (Success: {success_count}, Failed: {fail_count})")
+                        logging.info(f"Downloads from {url_file}: [{i}/{len(urls)}] complete. (Success: {success_count}, Failed: {fail_count})")
             except Exception as e:
                 fail_count += 1
                 logging.error(f"A download task itself failed unexpectedly: {e}")
@@ -117,18 +122,43 @@ async def download_all_files(url_file: str, download_dir: pathlib.Path):
     logging.info(f"Finished all downloads for {url_file}. Success: {success_count}, Failed: {fail_count}")
 
 def _process_file(file_path: pathlib.Path) -> set[str]:
-    """Helper function to parse a single file. Designed for parallel execution."""
+    """
+    Robust helper function to parse a single file.
+    It uses a regular expression to find the first valid IP/CIDR on a line,
+    ignoring any other text.
+    """
     entries = set()
+    source_url = str(file_path)
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            first = f.readline()
-            source = first.split(":", 1)[1].strip()
             for line in f:
+                if line.startswith("# Source:"):
+                    source_url = line.split(":", 1)[1].strip()
+                    continue
+                
+                # Clean the line of comments and whitespace
                 clean_line = line.split("#")[0].split(";")[0].strip()
-                if clean_line: entries.add(clean_line)
+                if not clean_line:
+                    continue
+
+                # Search for an IP/CIDR pattern anywhere in the line
+                match = IP_CIDR_REGEX.search(clean_line)
+                
+                if match:
+                    ip_str = match.group(1)
+                    try:
+                        # Final validation
+                        ipaddress.ip_network(ip_str, strict=False)
+                        entries.add(ip_str)
+                    except ValueError:
+                        # Regex matched
+                        logging.warning(f"Regex matched invalid IP '{ip_str}' in {source_url}")
+                        
     except Exception as e:
         logging.error(f"Could not process file {file_path}: {e}")
-    logging.info(f"Total IP/CIDR entries in {source}: {len(entries)}")
+    
+    # Log the source URL if we found one, otherwise the file path
+    logging.info(f"Parsed {len(entries)} entries from {source_url}")
     return entries
 
 def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
@@ -136,7 +166,8 @@ def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
     if not download_dir.exists(): return set()
     file_paths = list(download_dir.glob("*.txt"))
     if not file_paths:
-        shutil.rmtree(download_dir)
+        if download_dir.exists():
+            shutil.rmtree(download_dir)
         return set()
 
     logging.info(f"Parsing {len(file_paths)} files from {download_dir} in parallel...")
@@ -147,18 +178,17 @@ def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
     shutil.rmtree(download_dir)
     return all_entries
 
-def consolidate_networks_radix(ip_set: set[str]) -> list[str]:
+def consolidate_networks_radix(ip_set: set[str], exclusion_set: set[str] = None) -> list[str]:
     """
-    Consolidates networks using a Radix tree to find the minimal set of covering prefixes.
-    This version is compatible with older py-radix libraries that lack 'search_enclosing_prefixes'.
-    It works by finding all subnets and explicitly removing them.
+    Consolidates networks using a Radix tree, applying exclusions and aggregating the result.
+    This is the all-in-one, correct, and fast processing function.
     """
     if not ip_set: return []
     logging.info(f"Consolidating {len(ip_set):,} raw entries with Radix tree...")
     rtree = radix.Radix()
     invalid_count = 0
 
-    # Step 1: Add all valid networks to the Radix tree.
+    # Step 1: Add all valid blocklist networks to the Radix tree.
     for ip_str in ip_set:
         try:
             rtree.add(str(ipaddress.ip_network(ip_str, strict=False)))
@@ -167,34 +197,60 @@ def consolidate_networks_radix(ip_set: set[str]) -> list[str]:
     if invalid_count > 0:
         logging.warning(f"Skipped {invalid_count:,} invalid IP/CIDR entries during population.")
 
+    # Step 2: Remove all exclusion networks.
+    if exclusion_set:
+        logging.info(f"Applying {len(exclusion_set):,} exclusion entries...")
+        invalid_excl_count = 0
+        for ip_str in exclusion_set:
+            try:
+                excl_net_str = str(ipaddress.ip_network(ip_str, strict=False))
+                # 1. Delete the exact exclusion network (if it exists)
+                try:
+                    rtree.delete(excl_net_str)
+                except KeyError:
+                    pass 
+
+                # 2. Find and delete all subnets *covered by* this exclusion
+                nodes_to_delete = rtree.search_covered(excl_net_str)
+                if nodes_to_delete:
+                    prefixes_to_delete = [node.prefix for node in nodes_to_delete]
+                    for prefix in prefixes_to_delete:
+                        try:
+                            rtree.delete(prefix)
+                        except KeyError:
+                            pass
+
+                            
+            except ValueError:
+                invalid_excl_count += 1
+        
+        if invalid_excl_count > 0:
+            logging.warning(f"Skipped {invalid_excl_count:,} invalid exclusion entries.")
+
+    # Step 3: Get all remaining prefixes.
     all_prefixes = rtree.prefixes()
     if not all_prefixes:
         logging.info("Consolidation complete. Result is an empty list.")
         return []
         
-    # Step 2: Identify all prefixes that are subnets of other prefixes in the tree.
+    # Step 4: Aggregate the list by removing subnets that are covered by larger nets.
     prefixes_to_remove = set()
     for prefix_str in all_prefixes:
-        # search_covered() finds all prefixes in the tree that are subnets of the given one.
-        # This will always include the prefix itself.
         covered_nodes = rtree.search_covered(prefix_str)
-        # If more than one node is returned, it means this prefix covers other, more
-        # specific prefixes that are also in the tree. We should remove those subnets.
         if len(covered_nodes) > 1:
             for node in covered_nodes:
-                if node.prefix != prefix_str: # Don't add the parent prefix itself
+                if node.prefix != prefix_str:
                     prefixes_to_remove.add(node.prefix)
 
-    # Step 3: Create the final list by removing the identified subnets.
+    # Step 5: Create the final list by removing the identified subnets.
     consolidated_list = [p for p in all_prefixes if p not in prefixes_to_remove]
     
     logging.info(
-        f"Consolidation complete. Raw: {len(ip_set):,} -> "
-        f"Unique Prefixes: {len(all_prefixes):,} -> "
+        f"Consolidation complete. "
         f"Final Aggregated: {len(consolidated_list):,}"
     )
 
-    # Step 4: Sort the final list for clean output.
+    # Step 6: Sort the final list for clean output.
     ipv4_list, ipv6_list = [], []
     for ip_str in consolidated_list:
         try:
@@ -212,9 +268,6 @@ def consolidate_networks_radix(ip_set: set[str]) -> list[str]:
 
 def calculate_total_ips(ip_list: list[str]) -> int:
     total_ips = 0
-    # Define minimum acceptable prefix lengths.
-    # Ranges with a smaller prefix number (e.g., /7 for IPv4) will be ignored in the count.
-    # IPv6 disable for now.
     MIN_PREFIX_IPV4 = 8
     MIN_PREFIX_IPV6 = 64
 
@@ -226,8 +279,8 @@ def calculate_total_ips(ip_list: list[str]) -> int:
                     logging.warning(f"Ignoring overly broad IPv4 network in stats: {cidr_string}")
                     continue
             elif network.version == 6:
-              #  if network.prefixlen < MIN_PREFIX_IPV6:
-                    logging.warning(f"Ignoring overly broad IPv6 network in stats: {cidr_string}")
+            #   if network.prefixlen < MIN_PREFIX_IPV6:
+                    logging.warning(f"Ignoring overly broad IPv6 network in stats:. {cidr_string}")
                     continue
             
             total_ips += network.num_addresses
@@ -289,14 +342,31 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 - **Outbound Blocklist**: {outbound_count:,} networks/IPs covering {outbound_total_ips:,} individual IP addresses
 - **Total Coverage**: {inbound_total_ips + outbound_total_ips:,} individual IP addresses
 
-## Files
 
-- `inbound.txt` - Processed inbound IP blocklist
-- `outbound.txt` - Processed outbound IP blocklist
+---
+
+## How to Use These Lists
+
+These are standard text files (`\n` separated) and can be used with most modern firewalls, ad-blockers, and security tools.
+
+### 🛡️ `inbound.txt` (Inbound Blocklist)
+
+* **What it is:** A list of IPs/networks with a bad reputation for *initiating* malicious connections. This includes sources of spam, scanning, brute-force attacks (SSH, RDP), and web exploits.
+* **Use Case:** Protect your public-facing servers and services (web servers, mail servers, game servers, etc.).
+* **How to use:** Apply this list to your firewall's **WAN IN** or **INPUT** chain to **DROP** or **REJECT** all incoming traffic *from* these sources.
+
+### ☢️ `outbound.txt` (Outbound Blocklist)
+
+* **What it is:** A list of known malicious destination IPs. This includes C2 (Command & Control) servers, botnet controllers, malware drop sites, and phishing hosts.
+* **Use Case:** Prevent compromised devices on your *internal* network (like a laptop or IoT device) from *contacting* malicious servers.
+* **How to use:** Apply this list to your firewall's **LAN OUT** or **OUTPUT** chain to **BLOCK** or **LOG** all outgoing traffic *to* these destinations.
+
+---
 
 ## Acknowledgements
 
-🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists*  
+🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 
+
 🚀 **Code contributions**
 - [David](https://github.com/dvdctn)
 - [Garrett Laman](https://github.com/garrettlaman)
@@ -350,17 +420,41 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
         download_all_files(blocklist_url_file, blocklist_download_dir),
         download_all_files(exclusion_url_file, exclusion_download_dir)
     )
-
+    
     blocklist_entries = parse_files_in_parallel(blocklist_download_dir)
     exclusion_entries = parse_files_in_parallel(exclusion_download_dir)
     logging.info(f"Found {len(blocklist_entries):,} raw blocklist entries and {len(exclusion_entries):,} raw exclusion entries.")
 
+    # --- DEBUGGING: Show a sample of exclusion entries ---
     if exclusion_entries:
-        initial_count = len(blocklist_entries)
-        blocklist_entries.difference_update(exclusion_entries)
-        logging.info(f"Removed {initial_count - len(blocklist_entries):,} exclusion entries.")
+        logging.info("--- START S_EXCLUSION_ENTRIES (SAMPLE) ---")
+        excl_list_sample = list(exclusion_entries)
+        # Log all entries if 20 or fewer, otherwise a sample
+        if len(excl_list_sample) > 20:
+            logging.info(f"Showing 20 of {len(excl_list_sample)} exclusion entries:")
+            for i, entry in enumerate(excl_list_sample[:20]):
+                logging.info(f"EXCL {i+1}: {entry}")
+        else:
+            logging.info(f"Showing all {len(excl_list_sample)} exclusion entries:")
+            for i, entry in enumerate(excl_list_sample):
+                logging.info(f"EXCL {i+1}: {entry}")
+        
+        # Specifically check for the problem range
+        if "140.82.112.0/20" in exclusion_entries:
+            logging.info(">>> DEBUG: Problem range '140.82.112.0/20' was successfully parsed from exclusion list.")
+        else:
+            logging.warning(">>> DEBUG: Problem range '140.82.112.0/20' was NOT found in the parsed exclusion set.")
 
-    final_list = consolidate_networks_radix(blocklist_entries)
+        logging.info("--- END S_EXCLUSION_ENTRIES (SAMPLE) ---")
+    else:
+        logging.warning("No exclusion entries were found! The exclusion list may be empty or failed to parse.")
+
+
+    if not exclusion_entries:
+        final_list = consolidate_networks_radix(blocklist_entries, exclusion_set=set())
+    else:
+        final_list = consolidate_networks_radix(blocklist_entries, exclusion_entries)
+
     total_ips = calculate_total_ips(final_list)
     logging.info(f"Final {list_type} list: {len(final_list):,} networks covering {total_ips:,} individual IPs.")
 
