@@ -116,20 +116,34 @@ async def download_all_files(url_file: str, download_dir: pathlib.Path):
     
     logging.info(f"Finished all downloads for {url_file}. Success: {success_count}, Failed: {fail_count}")
 
+# --- NEW ROBUST PARSER ---
 def _process_file(file_path: pathlib.Path) -> set[str]:
-    """Helper function to parse a single file. Designed for parallel execution."""
+    """
+    Robust helper function to parse a single file.
+    It ignores comments and processes all other lines.
+    """
     entries = set()
+    source_url = str(file_path) # Default source name
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            first = f.readline()
-            source = first.split(":", 1)[1].strip()
             for line in f:
+                # First, check for our source comment
+                if line.startswith("# Source:"):
+                    source_url = line.split(":", 1)[1].strip()
+                    continue # Go to next line
+                
+                # Now, process the line as a potential IP
                 clean_line = line.split("#")[0].split(";")[0].strip()
-                if clean_line: entries.add(clean_line)
+                if clean_line:
+                    entries.add(clean_line)
+                    
     except Exception as e:
         logging.error(f"Could not process file {file_path}: {e}")
-    logging.info(f"Total IP/CIDR entries in {source}: {len(entries)}")
+    
+    # Log the source URL if we found one, otherwise the file path
+    logging.info(f"Parsed {len(entries)} entries from {source_url}")
     return entries
+# --- END NEW PARSER ---
 
 def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
     """Reads all files in a directory in parallel and returns a set of unique, clean lines."""
@@ -185,15 +199,12 @@ def consolidate_networks_radix(ip_set: set[str], exclusion_set: set[str] = None)
             logging.warning(f"Skipped {invalid_excl_count:,} invalid exclusion entries.")
 
     # Step 3: Get all remaining prefixes.
-    # Note: rtree.prefixes() will return '1.1.0.0/16' AND '1.1.1.0/24' if both were added.
-    # We must now aggregate this list.
     all_prefixes = rtree.prefixes()
     if not all_prefixes:
         logging.info("Consolidation complete. Result is an empty list.")
         return []
         
     # Step 4: Aggregate the list by removing subnets that are covered by larger nets.
-    # This is the step that was missing from the buggy V3 script.
     prefixes_to_remove = set()
     for prefix_str in all_prefixes:
         # search_covered() finds all prefixes in the tree that are subnets of this one.
@@ -372,8 +383,26 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
     exclusion_entries = parse_files_in_parallel(exclusion_download_dir)
     logging.info(f"Found {len(blocklist_entries):,} raw blocklist entries and {len(exclusion_entries):,} raw exclusion entries.")
 
+    # --- DEBUGGING: Show a sample of exclusion entries ---
+    if exclusion_entries:
+        logging.info("--- START S_EXCLUSION_ENTRIES (SAMPLE) ---")
+        excl_list_sample = list(exclusion_entries)
+        # Log all entries if 20 or fewer, otherwise a sample
+        if len(excl_list_sample) > 20:
+            logging.info(f"Showing 20 of {len(excl_list_sample)} exclusion entries:")
+            for i, entry in enumerate(excl_list_sample[:20]):
+                logging.info(f"EXCL {i+1}: {entry}")
+        else:
+            logging.info(f"Showing all {len(excl_list_sample)} exclusion entries:")
+            for i, entry in enumerate(excl_list_sample):
+                logging.info(f"EXCL {i+1}: {entry}")
+        logging.info("--- END S_EXCLUSION_ENTRIES (SAMPLE) ---")
+    else:
+        logging.warning("No exclusion entries were found! The exclusion list may be empty or failed to parse.")
+    # --- END DEBUGGING ---
+
+
     if not exclusion_entries:
-        logging.info("No exclusion entries found, consolidating blocklist directly.")
         # Pass an empty set for exclusions
         final_list = consolidate_networks_radix(blocklist_entries, exclusion_set=set())
     else:
