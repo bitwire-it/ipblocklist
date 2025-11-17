@@ -1,4 +1,4 @@
-# update_tables.py
+#!/usr/bin/env python3
 import ipaddress
 import logging
 import pathlib
@@ -109,7 +109,7 @@ async def download_all_files(url_file: str, download_dir: pathlib.Path):
                 if success: success_count += 1
                 else: fail_count += 1
                 if i % 10 == 0 or i == len(urls):
-                     logging.info(f"Downloads from {url_file}: [{i}/{len(urls)}] complete. (Success: {success_count}, Failed: {fail_count})")
+                        logging.info(f"Downloads from {url_file}: [{i}/{len(urls)}] complete. (Success: {success_count}, Failed: {fail_count})")
             except Exception as e:
                 fail_count += 1
                 logging.error(f"A download task itself failed unexpectedly: {e}")
@@ -136,7 +136,8 @@ def parse_files_in_parallel(download_dir: pathlib.Path) -> set[str]:
     if not download_dir.exists(): return set()
     file_paths = list(download_dir.glob("*.txt"))
     if not file_paths:
-        shutil.rmtree(download_dir)
+        if download_dir.exists():
+            shutil.rmtree(download_dir)
         return set()
 
     logging.info(f"Parsing {len(file_paths)} files from {download_dir} in parallel...")
@@ -226,7 +227,7 @@ def calculate_total_ips(ip_list: list[str]) -> int:
                     logging.warning(f"Ignoring overly broad IPv4 network in stats: {cidr_string}")
                     continue
             elif network.version == 6:
-              #  if network.prefixlen < MIN_PREFIX_IPV6:
+            #   if network.prefixlen < MIN_PREFIX_IPV6:
                     logging.warning(f"Ignoring overly broad IPv6 network in stats: {cidr_string}")
                     continue
             
@@ -296,7 +297,9 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ## Acknowledgements
 
-🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists*  
+🪨 *foundational blocklists* 
+**[borestad](https://www.github.com/borestad)** 
+
 🚀 **Code contributions**
 - [David](https://github.com/dvdctn)
 - [Garrett Laman](https://github.com/garrettlaman)
@@ -340,6 +343,43 @@ This blocklist is aggregated from the following reputable sources:
     except Exception as e:
         logging.error(f"Failed to update {README_FILE}: {e}")
 
+# This function is added to "normalize" the blocklists and exclusions
+# before they are compared.
+def expand_networks(ip_set: set[str], target_prefix_ipv4: int = 24, target_prefix_ipv6: int = 64) -> set[str]:
+    """
+    Expands all networks in a set down to a common prefix length.
+    This "normalizes" a list so that (e.g.) a /16 and a /20 can be
+    compared by breaking them both down into /24s.
+    """
+    logging.info(f"Normalizing network entries to common prefixes (IPv4: /{target_prefix_ipv4}, IPv6: /{target_prefix_ipv6})...")
+    expanded_set = set()
+    invalid_count = 0
+    
+    for ip_str in ip_set:
+        try:
+            net = ipaddress.ip_network(ip_str, strict=False)
+            target_prefix = target_prefix_ipv4 if net.version == 4 else target_prefix_ipv6
+            
+            if net.prefixlen < target_prefix:
+                # This network is broader than the target, break it down
+                for sub_net in net.subnets(new_prefix=target_prefix):
+                    expanded_set.add(str(sub_net))
+            else:
+                # This network is already specific enough (or is a single IP)
+                # We add the original string to handle /32, /128, and prefixes > target
+                expanded_set.add(ip_str)
+        except Exception as e:
+            # Catches invalid IPs or other parsing errors
+            logging.warning(f"Skipping invalid network during expansion: {ip_str} ({e})")
+            invalid_count += 1
+            
+    if invalid_count > 0:
+        logging.warning(f"Skipped {invalid_count} invalid entries during network expansion.")
+        
+    logging.info(f"Original {len(ip_set):,} entries expanded to {len(expanded_set):,} normalized entries.")
+    return expanded_set
+
+
 async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_file: str,
                        blocklist_download_dir: pathlib.Path, exclusion_download_dir: pathlib.Path,
                        output_file: str):
@@ -350,21 +390,35 @@ async def process_list(list_type: str, blocklist_url_file: str, exclusion_url_fi
         download_all_files(blocklist_url_file, blocklist_download_dir),
         download_all_files(exclusion_url_file, exclusion_download_dir)
     )
-
+    
     blocklist_entries = parse_files_in_parallel(blocklist_download_dir)
     exclusion_entries = parse_files_in_parallel(exclusion_download_dir)
     logging.info(f"Found {len(blocklist_entries):,} raw blocklist entries and {len(exclusion_entries):,} raw exclusion entries.")
 
     if exclusion_entries:
-        initial_count = len(blocklist_entries)
-        blocklist_entries.difference_update(exclusion_entries)
-        logging.info(f"Removed {initial_count - len(blocklist_entries):,} exclusion entries.")
+        # Normalize *both* lists by expanding them.
+        # This breaks 140.82.0.0/16 (blocklist) into thousands of /24s
+        # It also breaks 140.82.112.0/20 (exclusion) into its 16 corresponding /24s
+        
+        # We use /24 for IPv4 and /64 for IPv6 as common denominators.
+        normalized_blocklist = expand_networks(blocklist_entries, target_prefix_ipv4=8, target_prefix_ipv6=64)
+        normalized_exclusions = expand_networks(exclusion_entries, target_prefix_ipv4=8, target_prefix_ipv6=64)
+        
+        initial_count = len(normalized_blocklist)
+        normalized_blocklist.difference_update(normalized_exclusions)
+        logging.info(f"Removed {initial_count - len(normalized_blocklist):,} normalized exclusion entries.")
+        
+        # Pass the "punched-hole" list to the consolidator to re-assemble
+        final_list = consolidate_networks_radix(normalized_blocklist)
+    
+    else:
+        # No exclusions, process as normal
+        logging.info("No exclusion entries found, consolidating blocklist directly.")
+        final_list = consolidate_networks_radix(blocklist_entries)
 
-    final_list = consolidate_networks_radix(blocklist_entries)
     total_ips = calculate_total_ips(final_list)
     logging.info(f"Final {list_type} list: {len(final_list):,} networks covering {total_ips:,} individual IPs.")
 
-    # Apply the custom formatting before writing to the file
     logging.info(f"Formatting {len(final_list):,} networks for output file...")
     output_lines = [format_ip_for_output(ip) for ip in final_list]
 
