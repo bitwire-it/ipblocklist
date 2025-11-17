@@ -347,7 +347,7 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ## How to Use These Lists
 
-These are standard text files (`\n` separated) and can be used with most modern firewalls, ad-blockers, and security tools.
+These are standard text files and can be used with most modern firewalls, ad-blockers, and security tools.
 
 ### 🛡️ `inbound.txt` (Inbound Blocklist)
 
