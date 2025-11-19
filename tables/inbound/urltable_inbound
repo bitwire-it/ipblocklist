@@ -1,5 +1,5 @@
 https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_data-shield_ipv4_blocklist.txt
-https://raw.githubusercontent.com/montysecurity/C2-Tracker/refs/heads/main/data/all.tx
+https://raw.githubusercontent.com/montysecurity/C2-Tracker/refs/heads/main/data/all.txt
 https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/refs/heads/main/abuseipdb-s100-3d.ipv4
 https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/refs/heads/main/abuseipdb-s100-7d.ipv4
 https://raw.githubusercontent.com/borestad/firehol-mirror/refs/heads/main/blocklist_de_bruteforce.ipset
@@ -69,3 +69,4 @@ https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt
 https://blocklist.greensnow.co/greensnow.txt
 https://malware-filter.gitlab.io/malware-filter/botnet-filter.txt
 https://blackip.ustc.edu.cn/list.php?txt
+
