@@ -10,11 +10,11 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ## Live Statistics
 
-![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-22.1M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-157.0K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-22.2M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--12--02-green?style=flat-square)
+![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-2.8M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-156.9K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-3.0M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--12--02-green?style=flat-square)
 
-- **Inbound Blocklist**: 2,729,348 networks/IPs covering 22,068,896 individual IP addresses
-- **Outbound Blocklist**: 154,404 networks/IPs covering 157,023 individual IP addresses
-- **Total Coverage**: 22,225,919 individual IP addresses
+- **Inbound Blocklist**: 2,814,314 networks/IPs covering 2,811,964 individual IP addresses
+- **Outbound Blocklist**: 158,147 networks/IPs covering 156,934 individual IP addresses
+- **Total Coverage**: 2,968,898 individual IP addresses
 
 
 ---
@@ -39,9 +39,7 @@ These are standard text files and can be used with most modern firewalls, ad-blo
 
 ## Acknowledgements
 
-🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 
-
-🚀 **Code contributions**
+🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 🚀 **Code contributions**
 - [David](https://github.com/dvdctn)
 - [Garrett Laman](https://github.com/garrettlaman)
 
@@ -75,4 +73,4 @@ This blocklist is aggregated from the following reputable sources:
 
 ---
 
-*This README is automatically updated by the update script on 2025-12-02 14:26:25 UTC.*
+*This README is automatically updated by the update script on 2025-12-02 15:52:31 UTC.*
