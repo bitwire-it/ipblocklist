@@ -413,7 +413,6 @@ This blocklist is aggregated from the following reputable sources:
 - [Emerging Threats](http://rules.emergingthreats.net/blockrules/compromised-ips.txt)
 - [Spamhaus DROP](https://www.spamhaus.org/drop/drop.txt)
 - [CINSscore](https://cinsscore.com/list/ci-badguys.txt)
-- [Talos Intelligence](https://talosintelligence.com/documents/ip-blacklist)
 - [CriticalPathSecurity](https://github.com/CriticalPathSecurity/Public-Intelligence-Feeds)
 - [C2 Tracker](https://github.com/montysecurity/C2-Tracker)
 
