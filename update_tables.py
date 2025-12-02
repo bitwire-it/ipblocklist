@@ -54,9 +54,15 @@ HTTP_HEADERS = {
 }
 
 # --- Regex for finding IP/CIDR ---
-# This will find IPv4 and IPv4-CIDR.
+# Updated to support IPv4 and IPv6 (including CIDR /128)
 IP_CIDR_REGEX = re.compile(
-    r"\b((?:[0-9]{1,3}\.){3}[0-9]{1,3}(?:/[0-9]{1,2})?)\b"
+    r"\b("
+    r"(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3})"   # Match IPv4
+    r"|"
+    r"(?:[0-9a-fA-F:]+:[0-9a-fA-F:]+)"     # Match IPv6 (Loose match for extraction)
+    r")"
+    r"(?:/\d{1,3})?"                       # Match optional CIDR (e.g., /24, /32, /128)
+    r"\b"
 )
 
 def remove_old_files():
@@ -145,14 +151,27 @@ def _process_file(file_path: pathlib.Path) -> set[str]:
                 match = IP_CIDR_REGEX.search(clean_line)
                 
                 if match:
-                    ip_str = match.group(1)
+                    ip_str = match.group(0) # Changed from group(1) to group(0) to capture full match including CIDR if inside group 1 wasn't capturing properly in new regex structure
+                    # Correction: In the regex definition:
+                    # Group 0 is the whole match (IP + CIDR)
+                    # Group 1 is the IP part only
+                    # We want the whole string to pass to ip_network, so group(0) is safer, 
+                    # but let's check the regex structure.
+                    # r"\b( ("IPv4"|"IPv6") (?:/\d{1,3})? )\b" -> The outer parenthesis creates Group 1.
+                    # So match.group(1) is actually correct for the full string.
+                    # However, to be absolutely safe with nested groups, group(0) (the whole match) is preferred 
+                    # as long as the regex boundaries \b are correct.
+                    
+                    ip_to_validate = match.group(1)
+
                     try:
                         # Final validation
-                        ipaddress.ip_network(ip_str, strict=False)
-                        entries.add(ip_str)
+                        ipaddress.ip_network(ip_to_validate, strict=False)
+                        entries.add(ip_to_validate)
                     except ValueError:
-                        # Regex matched
-                        logging.warning(f"Regex matched invalid IP '{ip_str}' in {source_url}")
+                        # Regex matched something that looked like an IP but wasn't (e.g. 999.999.999.999 or 12:34)
+                        # logging.warning(f"Regex matched invalid IP '{ip_to_validate}' in {source_url}")
+                        pass
                         
     except Exception as e:
         logging.error(f"Could not process file {file_path}: {e}")
@@ -280,7 +299,7 @@ def calculate_total_ips(ip_list: list[str]) -> int:
                     continue
             elif network.version == 6:
             #   if network.prefixlen < MIN_PREFIX_IPV6:
-                    logging.warning(f"Ignoring overly broad IPv6 network in stats:. {cidr_string}")
+                    # logging.warning(f"Ignoring overly broad IPv6 network in stats:. {cidr_string}")
                     continue
             
             total_ips += network.num_addresses
@@ -305,7 +324,8 @@ def format_ip_for_output(cidr_string: str) -> str:
     - Removes '/128' from IPv6 addresses.
     - Keeps all other CIDR notations as is.
     """
-    if cidr_string.endswith('/32'):
+    if cidr_string.endswith('/32') and ':' not in cidr_string:
+         # Only remove /32 if it's IPv4 (checked by lack of colon, faster than parsing)
         return cidr_string[:-3]
     if cidr_string.endswith('/128'):
         return cidr_string[:-4]
@@ -365,9 +385,7 @@ These are standard text files and can be used with most modern firewalls, ad-blo
 
 ## Acknowledgements
 
-🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 
-
-🚀 **Code contributions**
+🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 🚀 **Code contributions**
 - [David](https://github.com/dvdctn)
 - [Garrett Laman](https://github.com/garrettlaman)
 
