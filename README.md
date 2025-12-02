@@ -12,9 +12,9 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-2.8M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-156.9K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-3.0M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2025--12--02-green?style=flat-square)
 
-- **Inbound Blocklist**: 2,814,314 networks/IPs covering 2,811,964 individual IP addresses
-- **Outbound Blocklist**: 158,147 networks/IPs covering 156,934 individual IP addresses
-- **Total Coverage**: 2,968,898 individual IP addresses
+- **Inbound Blocklist**: 2,814,399 networks/IPs covering 2,812,043 individual IP addresses
+- **Outbound Blocklist**: 158,148 networks/IPs covering 156,934 individual IP addresses
+- **Total Coverage**: 2,968,977 individual IP addresses
 
 
 ---
@@ -67,10 +67,9 @@ This blocklist is aggregated from the following reputable sources:
 - [Emerging Threats](http://rules.emergingthreats.net/blockrules/compromised-ips.txt)
 - [Spamhaus DROP](https://www.spamhaus.org/drop/drop.txt)
 - [CINSscore](https://cinsscore.com/list/ci-badguys.txt)
-- [Talos Intelligence](https://talosintelligence.com/documents/ip-blacklist)
 - [CriticalPathSecurity](https://github.com/CriticalPathSecurity/Public-Intelligence-Feeds)
 - [C2 Tracker](https://github.com/montysecurity/C2-Tracker)
 
 ---
 
-*This README is automatically updated by the update script on 2025-12-02 15:52:31 UTC.*
+*This README is automatically updated by the update script on 2025-12-02 16:09:38 UTC.*
