@@ -36,9 +36,6 @@ https://raw.githubusercontent.com/bitwire-it/ip_list_fetch/refs/heads/main/black
 https://raw.githubusercontent.com/SecOps-Institute/Tor-IP-Addresses/master/tor-exit-nodes.lst
 https://secureupdates.checkpoint.com/IP-list/TOR.txt
 https://www.opendbl.net/lists/bruteforce.list
-https://api.greynoise.io/v3/tags/4454bcc7-d416-4bc9-8e85-e860c82369c2/ips?format=txt&token=QQbXBl9iSxWfBjvqAgNodg 
-https://api.greynoise.io/v3/tags/f620e81c-eaf4-477f-8bc4-ec94ca672615/ips?format=txt&token=iCo1cIG0SvyJdkEozInOA
-https://api.greynoise.io/v3/tags/537cee16-c4a9-45cd-baf1-75963ab7bdd2/ips?format=txt&token=QWjWOA80SqqYzwKWVB8Q
 https://www.binarydefense.com/banlist.txt
 https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Other/Scanners
 https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Other/Tunnel
@@ -69,4 +66,5 @@ https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt
 https://blocklist.greensnow.co/greensnow.txt
 https://malware-filter.gitlab.io/malware-filter/botnet-filter.txt
 https://blackip.ustc.edu.cn/list.php?txt
+
 
