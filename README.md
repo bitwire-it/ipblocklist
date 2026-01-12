@@ -10,11 +10,11 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ## Live Statistics
 
-![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-3.2M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-179.5K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-3.4M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2026--01--12-green?style=flat-square)
+![Inbound IPs](https://img.shields.io/badge/Inbound_IPs-3.2M-red?style=flat-square) ![Outbound IPs](https://img.shields.io/badge/Outbound_IPs-179.6K-orange?style=flat-square) ![Total IPs](https://img.shields.io/badge/Total_IPs-3.4M-blue?style=flat-square) ![Last Updated](https://img.shields.io/badge/Last_Updated-2026--01--12-green?style=flat-square)
 
-- **Inbound Blocklist**: 3,230,028 networks/IPs covering 3,228,040 individual IP addresses
-- **Outbound Blocklist**: 180,795 networks/IPs covering 179,473 individual IP addresses
-- **Total Coverage**: 3,407,513 individual IP addresses
+- **Inbound Blocklist**: 3,230,261 networks/IPs covering 3,228,284 individual IP addresses
+- **Outbound Blocklist**: 180,873 networks/IPs covering 179,551 individual IP addresses
+- **Total Coverage**: 3,407,835 individual IP addresses
 
 
 ---
@@ -49,9 +49,19 @@ These are standard text files and can be used with most modern firewalls, ad-blo
 - Alexandru Balmus
 - blockstreamtechnologies.llc
 
-## Data Sources
+## License
 
-This blocklist is aggregated from the following reputable sources:
+### Code
+The source code (including `update_tables.py`) is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+
+### Data
+The aggregated blocklists (`inbound.txt`, `outbound.txt`, etc.) are derivative works containing data from multiple sources. 
+
+**Usage of these lists is subject to the licenses of the original data providers.** - Many sources (e.g., Spamhaus) **prohibit commercial use** of their data without a separate agreement.
+- Therefore, the aggregated data in this repository is provided under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)** license.
+
+**Attribution:**
+This project relies on data from:
 
 - [borestad/blocklist-abuseipdb](https://github.com/borestad/blocklist-abuseipdb)
 - [borestad/firehol-mirror](https://github.com/borestad/firehol-mirror)
@@ -72,4 +82,4 @@ This blocklist is aggregated from the following reputable sources:
 
 ---
 
-*This README is automatically updated by the update script on 2026-01-12 10:29:41 UTC.*
+*This README is automatically updated by the update script on 2026-01-12 11:53:33 UTC.*
