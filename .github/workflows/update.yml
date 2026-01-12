@@ -1,50 +1,55 @@
-name: Update IP Blocklists
+name: Update IP Lists
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
   schedule:
-    - cron: "0 */2 * * *"
-  workflow_dispatch:
+    - cron: '0 */2 * * *' # Run every 2 hours
+  workflow_dispatch:      # Allow manual trigger
 
 jobs:
-  update-list:
+  update-lists:
     runs-on: ubuntu-latest
-
     permissions:
-      contents: write
+      contents: write  # Give permission to push changes
 
     steps:
-    - name: Checkout repository
-      # This step is now simplified. For PRs, it correctly checks out a merge commit.
-      # This avoids the confusion caused by `ref: ${{ github.head_ref }}`.
-      uses: actions/checkout@v4
-    
-    - name: remove old files
-      run: |
-        rm -f ip-list.txt
-        rm -f inbound.txt
-        rm -f outbound.txt
-        
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
-        cache: 'pip'
-        cache-dependency-path: '**/requirements.txt'
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Clean up old artifacts
+      run: |
+        # Remove root text files if they exist
+        rm -f inbound.txt outbound.txt
+        
+        # Remove all .txt files inside tables/ (ipv6.txt, networks.txt, etc)
+        # We use 'find' to avoid errors if directories are empty
+        find tables -name "*.txt" -type f -delete
+        
+        echo "Old files removed."
 
     - name: Run update script
-      run: python update_tables.py
+      run: python3 update_tables.py
 
-    - name: Commit and push if changed
-      uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: "chore: Update IP blocklists"
-        file_pattern: "inbound.txt outbound.txt ip-list.txt README.md"
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+        
+        # 'git add .' stages new files, modified files, AND DELETIONS
+        git add .
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Auto-update IP blocklists and stats [$(date)]"
+          git push
+        fi
