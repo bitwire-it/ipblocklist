@@ -395,9 +395,19 @@ These are standard text files and can be used with most modern firewalls, ad-blo
 - Alexandru Balmus
 - blockstreamtechnologies.llc
 
-## Data Sources
+## License
 
-This blocklist is aggregated from the following reputable sources:
+### Code
+The source code (including `update_tables.py`) is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+
+### Data
+The aggregated blocklists (`inbound.txt`, `outbound.txt`, etc.) are derivative works containing data from multiple sources. 
+
+**Usage of these lists is subject to the licenses of the original data providers.** - Many sources (e.g., Spamhaus) **prohibit commercial use** of their data without a separate agreement.
+- Therefore, the aggregated data in this repository is provided under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)** license.
+
+**Attribution:**
+This project relies on data from:
 
 - [borestad/blocklist-abuseipdb](https://github.com/borestad/blocklist-abuseipdb)
 - [borestad/firehol-mirror](https://github.com/borestad/firehol-mirror)
