@@ -76,5 +76,3 @@ This project relies on data from:
 - [C2 Tracker](https://github.com/montysecurity/C2-Tracker)
 
 ---
-
-*This README is automatically updated by the update script on 2026-01-12 11:57:20 UTC.*
