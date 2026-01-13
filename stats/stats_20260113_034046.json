@@ -79,7 +79,7 @@
             "networks_count": 244285,
             "single_ips_count": 2760782,
             "total_optimized_count": 3006162,
-            "marketing_metrics": {
+            "top_metrics": {
                 "total_ipv4_addresses_covered": 22791104,
                 "cidr_distribution": {
                     "32": 2760782,
@@ -132,7 +132,7 @@
             "networks_count": 5017,
             "single_ips_count": 159874,
             "total_optimized_count": 165341,
-            "marketing_metrics": {
+            "top_metrics": {
                 "total_ipv4_addresses_covered": 179616,
                 "cidr_distribution": {
                     "32": 159874,
