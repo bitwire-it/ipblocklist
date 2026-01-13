@@ -182,7 +182,7 @@ def write_files(ip_set, output_dir, merged_filename):
         "networks_count": len(network_set),
         "single_ips_count": len(single_ip_set),
         "total_optimized_count": len(full_list),
-        "marketing_metrics": {
+        "top_metrics": {
             "total_ipv4_addresses_covered": total_ipv4_addresses,
             "cidr_distribution": cidr_breakdown
         }
