@@ -1,0 +1,44 @@
+name: Update History Stats
+
+on:
+  schedule:
+    # Runs at 23:50 UTC (which is 11:50 PM UTC).
+    # If you are in Italy (CET/UTC+1), this runs at 00:50 AM next day.
+    # To run at 11:50 PM Italy time (22:50 UTC), use: '50 22 * * *'
+    - cron: '50 23 * * *'
+  workflow_dispatch:      # Allow manual trigger for testing
+
+jobs:
+  generate-history:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Critical for pushing changes back
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Run history generator
+      # This runs the script we created in the Canvas
+      run: python3 generate_history.py
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+        
+        # 'git add .' stages new files, modified files, AND DELETIONS
+        git add .
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Auto-update IP blocklists and stats [$(date)]"
+          git push
+        fi
