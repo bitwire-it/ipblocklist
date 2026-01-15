@@ -7,7 +7,7 @@ on:
 
 jobs:
   update-lists:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: write  # Give permission to push changes
 
