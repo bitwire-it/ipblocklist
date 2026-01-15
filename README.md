@@ -32,6 +32,13 @@ These are standard text files and can be used with most modern firewalls, ad-blo
 
 ---
 
+## Self-hosted runners
+
+The workflow `update.yml` take a lot of time to complete, for this reason i started a Self-hoster runner to pick up the job, if you want to setup the action please add it to your forked repository
+[Setup Self-hosted runners](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners)
+
+---
+
 ## Acknowledgements
 
 🪨 **[borestad](https://www.github.com/borestad)** • *foundational blocklists* 🚀 **Code contributions**
