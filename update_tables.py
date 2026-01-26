@@ -7,6 +7,7 @@ import json
 import time
 import itertools
 import logging
+import re
 from datetime import datetime, timezone
 from typing import List, Dict, Set, Optional, Union, Tuple
 
@@ -17,6 +18,10 @@ MIN_NETWORKS_FOR_MP = 1000
 MAX_FETCH_WORKERS = 10
 CHUNKS_PER_WORKER = 14
 MAX_TASKS_PER_CHILD = 100
+
+# Regex for finding IPv4 candidates in messy text (e.g. pipe delimited files)
+# Matches 4 groups of 1-3 digits separated by dots, optionally followed by /CIDR
+IPV4_REGEX = re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}(?:/\d{1,2})?\b')
 
 # Global variables for worker processes to avoid pickling large datasets repeatedly
 WORKER_GLOBAL_EXCL: List[Union[ipaddress.IPv4Network, ipaddress.IPv6Network]] = []
@@ -66,8 +71,10 @@ def fetch_url_lines(url: str) -> List[str]:
                     # Remove comments and empty lines
                     if not line or line.startswith('#'):
                         continue
-                    # Remove inline comments
+                    # Remove inline comments (careful not to break URLs with fragments, though uncommon in lists)
                     if '#' in line:
+                         # Only split if # is followed by space or end of line to avoid breaking complex URLs
+                         # Simple heuristic: Split on first #
                         line = line.split('#')[0].strip()
                     if line:
                         lines.append(line)
@@ -84,21 +91,60 @@ def fetch_url_lines(url: str) -> List[str]:
 def parse_network_safe(line: str) -> Optional[Union[ipaddress.IPv4Network, ipaddress.IPv6Network]]:
     """
     Safely parses a line into an ip_network object.
-    Handles single IPs by converting them to /32 or /128.
+    1. Tries strict parsing.
+    2. Tries parsing as a URL (extracting IP from hostname).
+    3. Tries Regex extraction for IPv4 (handling pipe-delimited logs etc).
     """
-    # utf-8-sig handles BOM, but extra strip is harmless
     line = line.strip()
+    if not line:
+        return None
     
+    # 1. Direct Parsing (Most common case: Clean IP lists)
     try:
-        # Try parsing as a network (CIDR) first
         return ipaddress.ip_network(line, strict=False)
     except ValueError:
+        pass
+
+    # 2. Try parsing as a single address and convert to network
+    try:
+        addr = ipaddress.ip_address(line)
+        return ipaddress.ip_network(f"{addr}/{addr.max_prefixlen}", strict=False)
+    except ValueError:
+        pass
+
+    # 3. Handle URLs (e.g. http://1.2.3.4/malware.exe)
+    # This extracts the IP '1.2.3.4' from the URL.
+    if '://' in line:
         try:
-            # Fallback: Try parsing as a single address and convert to network
-            addr = ipaddress.ip_address(line)
+            parsed = urlparse(line)
+            netloc = parsed.netloc
+            
+            # Cleanup brackets for IPv6 [::1]
+            if netloc.startswith('[') and ']' in netloc:
+                netloc = netloc.split(']')[0].strip('[')
+            # Cleanup Port for IPv4 1.2.3.4:80
+            elif ':' in netloc:
+                # Be careful with IPv6 literals without brackets (rare in URLs but possible in raw data)
+                # If it looks like IPv4 (3 dots), assume colon is port
+                if netloc.count('.') == 3:
+                    netloc = netloc.split(':')[0]
+            
+            addr = ipaddress.ip_address(netloc)
             return ipaddress.ip_network(f"{addr}/{addr.max_prefixlen}", strict=False)
         except ValueError:
-            return None
+            pass # Domain name URLs will fail here, which is expected
+
+    # 4. Regex Fallback (e.g. "ASN | 1.2.3.4 | Date")
+    # Finds the first valid IPv4 string in the line
+    match = IPV4_REGEX.search(line)
+    if match:
+        candidate = match.group(0)
+        try:
+            return ipaddress.ip_network(candidate, strict=False)
+        except ValueError:
+            pass
+
+    return None
 
 def _get_key_from_addr(addr: Union[ipaddress.IPv4Address, ipaddress.IPv6Address]) -> int:
     """
