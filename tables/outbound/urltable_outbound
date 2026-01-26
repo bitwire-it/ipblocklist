@@ -14,4 +14,5 @@ https://raw.githubusercontent.com/borestad/firehol-mirror/refs/heads/main/tor_ex
 https://raw.githubusercontent.com/borestad/firehol-mirror/refs/heads/main/iblocklist_onion_router.netset
 https://raw.githubusercontent.com/borestad/firehol-mirror/refs/heads/main/iblocklist_ciarmy_malicious.netset
 https://raw.githubusercontent.com/montysecurity/C2-Tracker/refs/heads/main/data/all.txt
-
+https://rules.emergingthreats.net/open/suricata/rules/compromised-ips.txt
+http://vxvault.net/URL_List.php
