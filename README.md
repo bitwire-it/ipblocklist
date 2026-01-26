@@ -10,7 +10,7 @@ This project provides aggregated IP blocklists for inbound and outbound traffic,
 
 ## Live Statistics
 
-[Live Dashboard](bitwire.it/blocklist-stats)
+[Live Dashboard](https://bitwire.it/blocklist-stats)
 
 ---
 
