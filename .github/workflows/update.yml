@@ -8,6 +8,9 @@ on:
 jobs:
   update-lists:
     runs-on: self-hosted
+    concurrency:
+      group: update-lists
+      cancel-in-progress: false
     permissions:
       contents: write
 
@@ -37,6 +40,6 @@ jobs:
           echo "No changes to commit"
         else
           git commit -m "Auto-update IP blocklists and stats [$(date)]"
-          git pull --rebase
+          git pull --rebase -X theirs
           git push
         fi
