@@ -18,11 +18,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v7
 
-    - name: Set up Python
-      uses: actions/setup-python@v7
-      with:
-        python-version: '3.x'
-
     - name: Clean up old artifacts
       run: |
         rm -f inbound.txt outbound.txt
