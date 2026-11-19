@@ -303,6 +303,7 @@
 2a03:4000:21:8a8:dead:beef:ca1f:1337
 2a03:4000:27:36:c813:6dff:fe0e:b93e
 2a03:4000:27:6f8:e466:27ff:fe82:1b2a
+2a03:4000:28:1e8::69
 2a03:4000:2b:66e:dead:beef:ca1f:1337
 2a03:4000:37:3:e842:2ff:feb9:c49c
 2a03:4000:58:7d:de1:ea7:dead:beef
@@ -371,6 +372,7 @@
 2a09:61c0::44/127
 2a09:61c0::46
 2a09:61c0::beef
+2a0a:4cc0:c1:a200:e84c:bbff:fe4e:b79c
 2a0a:4cc0:c2:79c2:d490:7cff:fe4f:e470
 2a0a:4cc0:100:65a:28be:9ff:fe0e:685e
 2a0a:4cc0:2000:cd4c::12
@@ -460,7 +462,6 @@
 2a0e:bfc2:0:3f::9473
 2a0e:bfc7::216:3cff:fe6d:b40
 2a0e:bfc7::216:3cff:fe6f:c4ca
-2a0e:bfc7::5054:ff:fed6:dc14
 2a0e:bfc7::b6b5:2fff:fe6a:84bc
 2a0e:bfc7:100:2b::eb48
 2a0e:bfc7:300:15::10
